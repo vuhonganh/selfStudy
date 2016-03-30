@@ -1,13 +1,26 @@
 \documentclass[12pt,twoside,a4paper]{report}
-\usepackage[toc,page]{appendix}
 
+%\usepackage[toc,page]{appendix}
 \usepackage{caption}
 \usepackage{subcaption}
 \usepackage{amsmath}
 \usepackage{amsthm}
-\usepackage{listings}
-\usepackage{graphicx}                                                                                                                                             
 
+%code listing setup
+\usepackage{listings}
+
+%hyper link setup
+\usepackage{hyperref}
+\hypersetup
+{
+    colorlinks=true,
+    linkcolor=blue,
+    urlcolor=red,
+    linktoc=all
+}
+
+%graphicx setup
+\usepackage{graphicx}
 \graphicspath{ {images/} }
 
 %no indent at the first line of a paragraph
@@ -45,7 +58,19 @@
     \end{center}
 \end{titlepage}
 
+\tableofcontents
+% \makeatletter
+% \def\@@underline#1{#1}
+% \tableofcontents
+% \makeatother
+
+
+\listoffigures
+
+\chapter{Week 1} 
 \input{week1/note}
+
+\chapter{Week 2}
 
 
 \end{document}

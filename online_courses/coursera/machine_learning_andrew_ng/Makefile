@@ -3,10 +3,11 @@ build:
 
 .PHONY: clean
 clean:
-	rm -rf main.aux main.log
+	rm -rf main.aux main.log main.dvi main.pdf main.toc main.out main.lof
 
 pdf:
 	pdflatex main.tex
+
 show:
 	xdvi main.dvi
 

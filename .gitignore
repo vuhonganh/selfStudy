@@ -1,3 +1,7 @@
 main.aux
 main.log
 main.dvi
+main.lof
+main.out
+main.toc
+*.pdf
