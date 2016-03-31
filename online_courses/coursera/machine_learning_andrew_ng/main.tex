@@ -1,5 +1,5 @@
 \documentclass[12pt,twoside,a4paper]{report}
-
+\usepackage{fullpage}
 %\usepackage[toc,page]{appendix}
 \usepackage{caption}
 \usepackage{subcaption}
@@ -27,6 +27,7 @@
 \setlength\parindent{0pt}
 
 \begin{document}
+\boldmath
 \begin{titlepage}
     \begin{center}
         %\vspace*{1cm}
@@ -58,7 +59,9 @@
     \end{center}
 \end{titlepage}
 
+%\setcounter{tocdepth}{2}
 \tableofcontents
+
 % \makeatletter
 % \def\@@underline#1{#1}
 % \tableofcontents
@@ -71,6 +74,6 @@
 \input{week1/note}
 
 \chapter{Week 2}
-
+\input{week2/note}
 
 \end{document}
