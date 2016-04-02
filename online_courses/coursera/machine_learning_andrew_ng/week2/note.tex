@@ -1,4 +1,81 @@
 This is the note of week 2 in the course Machine Learning by Andrew Ng. It covers the Multivariate Linear Regression and a tutorial of Octave. It also talks about computing parameters of problem \eqref{form:costFx} in an analytical way without proof of the method. 
 
 \section{Multivariate Linear Regression}
- 
+\subsection{Multiple Features}
+Notation
+\begin{itemize}
+ 	\item $m$ = number of training examples
+ 	\item $n$ = number of features
+ 	\item $x^{(i)}$ = input (features) of $i^{th}$ training example
+ 	\item $x_{j}^{(i)}$ = value of feature j in $i^{th}$ training example
+ \end{itemize} 
+
+Hence, the hypothesis function now is $h_{\theta}(x) = \theta_0 + \theta_1 x_1 + \theta_2 x_2 + ... + \theta_n x_n$. For convenience of notation, we define $x_0 = 1$ then:
+\[
+x = \begin{pmatrix}
+x_0 \\
+x_1 \\
+... \\
+x_n
+\end{pmatrix} \in \Re^{n+1} \hspace{0.8cm} \theta = \begin{pmatrix}
+\theta_0 \\
+\theta_1 \\
+... \\
+\theta_n
+\end{pmatrix} \in \Re^{n+1}
+\]   
+and
+\begin{align}
+\label{form:w2mulVarH}
+h_\theta(x) = \theta^{T}x
+\end{align}
+
+\subsection{Gradient Descent for Multiple Variables}
+For $j = 0,..,n $ simultaneously update:
+\begin{align}
+\label{form:w2mulVarGradDesc}
+\theta_j := \theta_j - \alpha \frac{1}{m} \Sigma_{i=1}^{m} (h_{\theta}(x^{(i)}) - y^{(i)})x_j^{(i)}  
+\end{align}
+Note that $x_0^{(i)} = 1$ for $i = 1,..,m$ in the training set.
+
+\subsection{Feature Scaling}
+Feature scaling is a method used to standardize the range of independent variables or features of data. In data processing, it is also known as data normalization and is generally performed during the data preprocessing step. Since the range of values of raw data varies widely, in some machine learning algorithms, especially in Gradient Descent, objective functions will not work properly without normalization. We can rescale a feature value $x_j^{(i)}$, for $j > 0$ like this (do not apply with $x_0^{(i)} = 1$):
+\begin{align}
+\label{form:w2FeatScale}
+x_j^{(i)} := \frac{x_j^{(i)} - \Sigma_{i=1}^{m} x_j^{(i)}/m}{max_{i=1..m}(x_j^{(i)}) - min_{i=1..m}(x_j^{(i)})} 
+\end{align}
+One question: how to prove analytically that the problem remains the same after this change?
+
+\subsection{Learning Rate}
+The learning rate $\alpha > 0$ needs to be small enough but if it's too small it will make so much time to reach the minimum. So, by experience, we can try with values like 0.003, 0.01, 0.03, 0.1, 0.3, 1, etc. (the latter equals 3 times the former).
+
+\subsection{Polynomial Regression}
+If we want to fit a relation like: $h_\theta(x) = \theta_0 + \theta_1 x + \theta_2 x^2 + \theta_3 x^3 $ so we just turn $x^2 \rightarrow x_2$ and $x^3 \rightarrow x_3$ and we continue to compute as usual. Remember to apply Feature Scaling (formula \eqref{form:w2FeatScale}) if applicable.
+
+\section{Computing Parameters Analytically}
+The course only provided the result without a concrete proof. I will add if I have time. The idea is all partial derivatives of cost function of features equals 0: $\frac{\partial J(\theta)}{\partial \theta_j} = 0$ for $j=0,..,n$. The result is:
+\[
+\theta = (X^T X)^{-1}X^Ty
+\]
+where $X$ is the $m \times (n+1)$ matrix constituted by features vectors (each column is each feature vector):
+\[
+X = \begin{pmatrix}
+x_0^{(1)} & x_1^{(1)} & x_2^{(1)} & ... & x_n^{(1)} \\
+x_0^{(2)} & x_1^{(2)} & x_2^{(2)} & ... & x_n^{(2)} \\
+...       & ...       & ...       & ... & ...\\
+x_0^{(m)} & x_1^{(m)} & x_2^{(m)} & ... & x_n^{(m)}
+\end{pmatrix} \hspace{0.8cm} 
+\]
+and $y$ is the vector of output:
+\[
+y = \begin{pmatrix}
+y^{(1)} \\
+y^{(2)} \\
+... \\
+y^{(m)}
+\end{pmatrix}
+\]
+In Octave, to compute this, it's \textbf{pinv}(X$'$*X)*X$'$*y. For big $m$ and $n$, we need to switch from Analytical Method to Gradient Descent Method because it takes $O(n^3)$ to compute $(X^TX)^{-1}$. \\
+Note that in Octave, \textbf{pinv} is pseudo-inverse and it'll give correct answer even if $X^TX$ is non-invertible. To avoid $X^TX$ is non-invertible, we can remove redundant features (like two features are size in $feet^2$ and feature size in $m^2$) and delete features if we have too many features compared to the number of training examples (i.e. $m \leq n$). 
+
+\section{Introduction to Octave}
