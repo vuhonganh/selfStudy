@@ -1,6 +1,7 @@
 \documentclass[12pt,twoside,a4paper]{report}
 \usepackage{fullpage}
 %\usepackage[toc,page]{appendix}
+
 \usepackage{caption}
 \usepackage{subcaption}
 \usepackage{amsmath}
@@ -8,6 +9,28 @@
 
 %code listing setup
 \usepackage{listings}
+\usepackage{color} %need to use color to define those colors below
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+\lstset{
+    commentstyle=\color{red},
+    keywordstyle=\color{blue},
+    backgroundcolor=\color{backcolour},   
+    commentstyle=\color{codegreen},
+    keywordstyle=\color{magenta},
+    numberstyle=\tiny\color{codegray},
+    stringstyle=\color{codepurple},
+    literate={~} {$\sim$}{1},
+    escapechar=£,
+    basicstyle=\scriptsize,
+    frame=single,
+    showstringspaces=false,
+    breaklines,
+    language=Octave,
+}
+
 
 %hyper link setup
 \usepackage{hyperref}
@@ -69,6 +92,8 @@
 
 
 \listoffigures
+
+\lstlistoflistings
 
 \chapter{Week 1} 
 \input{week1/note}
