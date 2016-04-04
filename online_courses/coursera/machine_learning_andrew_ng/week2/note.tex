@@ -10,13 +10,13 @@ Notation
  	\item $x_{j}^{(i)}$ = value of feature j in $i^{th}$ training example
  \end{itemize} 
 
-Hence, the hypothesis function now is $h_{\theta}(x) = \theta_0 + \theta_1 x_1 + \theta_2 x_2 + ... + \theta_n x_n$. For convenience of notation, we define $x_0 = 1$ then:
+Hence, the hypothesis function now is $h_{\theta}(x^{(i)}) = \theta_0 + \theta_1 x_1^{(i)} + \theta_2 x_2^{(i)} + ... + \theta_n x_n^{(i)}$. For convenience of notation, we define $x_0^{(i)} = 1$ then:
 \[
-x = \begin{pmatrix}
-x_0 \\
-x_1 \\
+x^{(i)} = \begin{pmatrix}
+x_0^{(i)} \\
+x_1^{(i)} \\
 ... \\
-x_n
+x_n^{(i)}
 \end{pmatrix} \in \Re^{n+1} \hspace{0.8cm} \theta = \begin{pmatrix}
 \theta_0 \\
 \theta_1 \\
@@ -27,7 +27,7 @@ x_n
 and
 \begin{align}
 \label{form:w2mulVarH}
-h_\theta(x) = \theta^{T}x
+h_\theta(x^{(i)}) = \theta^{T}x^{(i)}
 \end{align}
 
 \subsection{Gradient Descent for Multiple Variables}
@@ -80,8 +80,8 @@ Note that in Octave, \textbf{pinv} is pseudo-inverse and it'll give correct answ
 
 \section{Introduction to Octave}
 \subsection{Basic Operators}
-Some basic operators are explained in listing \ref{lstMatManip}. 
-\begin{lstlisting}[label=lstMatManip,caption=Matrix Manipulation]
+Some basic operators are explained in listing \ref{lst:MatManip}. 
+\begin{lstlisting}[label=lst:MatManip,caption=Basic Octave]
 %% Change Octave prompt  
 PS1('>> ');
 
@@ -165,4 +165,194 @@ C = [A, B] % concatenating A and B matrices side by side
 C = [A; B] % Concatenating A and B top and bottom
 \end{lstlisting} 
 
-\subsection{Moving data around}
+\subsection{Moving Data Around}
+Two files storing data are added: \textbf{featuresX.dat} (storing zise and number of pieces of the house) and \textbf{priceY.dat} (storing the price of the house). 
+\begin{lstlisting}[label=lst:dataManip,caption=Moving Data Around]
+% Change directory to week2 and list files in there
+ls     % result: featuresX.dat  note.tex  priceY.dat 
+
+% Load data
+load priceY.dat    % alternatively, load('priceY.dat')
+load featuresX.dat
+who    % list variables in workspace
+whos   % like above with detailed view with size, bytes, type (double, char) 
+
+% Unload data
+clear priceY
+
+% Take some elements from var: var(start:end)
+v = priceY(1:5) % give 5 elements from 1st to 5nd
+
+% Save variable v to a matrix file (test.mat) 
+save test.mat v
+
+% Unload all data
+clear 
+
+% When you load test.mat it will store data to variable v
+load test.mat
+
+% Save to a readable format like ASCII text
+save test.txt v -ascii
+
+% fopen, fread, fprintf, fscanf also work (not needed in class)
+
+% Create function by creating a functionName.m containing code of this function
+% For example, create a function squareandCubeThisNo.m containing:
+function [y1, y2] = squareandCubeThisNo(x)
+    y1 = x^2
+    y2 = x^3
+
+% To call the function, need to add its path:
+addpath('/path/to/function/')
+
+% To remember the path for future sessions of Octave,
+% after executing addpath above, also do:
+savepath
+
+% Call function
+functionName(args)
+\end{lstlisting}
+
+\subsection{Computing Data}
+Below listing is some data computation example code.
+\begin{lstlisting}[label=lst:dataComp, caption=Computing Data]
+%% initialize variables
+A = [1 2;3 4;5 6]
+B = [11 12;13 14;15 16]
+C = [1 1;2 2]
+v = [1;2;3]
+
+%% matrix operations
+A * C  % matrix multiplication
+A .* B % element-wise multiplication
+% A .* C  or A * B gives error - wrong dimensions
+A .^ 2 % element-wise square of each element in A
+1./v   % element-wise reciprocal
+log(v)  % functions like this operate element-wise on vecs or matrices 
+exp(v)
+abs(v)
+
+-v  % -1*v
+
+v + ones(length(v), 1)  
+% v + 1  % same
+
+A'  % matrix transpose
+
+%% misc useful functions
+
+% max  (or min)
+a = [1 15 2 0.5]
+val = max(a)
+[val,ind] = max(a) % val -  maximum element of the vector a and index - index value where maximum occur
+val = max(A) % if A is matrix, returns max from each column
+
+% compare values in a matrix & find
+a < 3 % checks which values in a are less than 3
+find(a < 3) % gives location of elements less than 3
+A = magic(3) % generates a magic matrix - not much used in ML algorithms
+[r,c] = find(A>=7)  % row, column indices for values matching comparison
+
+% sum, prod
+sum(a)
+prod(a)
+floor(a) % or ceil(a)
+max(rand(3),rand(3))
+max(A,[],1) -  maximum along columns(defaults to columns - max(A,[]))
+max(A,[],2) - maximum along rows
+A = magic(9)
+sum(A,1)
+sum(A,2)
+sum(sum( A .* eye(9) ))
+sum(sum( A .* flipud(eye(9)) ))
+
+
+% Matrix inverse (pseudo-inverse)
+pinv(A)        % inv(A'*A)*A'
+\end{lstlisting}
+
+\subsection{Plotting Data}
+In listing \ref{lst:dataPlot} is some example of plotting data.
+\begin{lstlisting}[label=lst:dataPlot, caption= Plotting Data]
+%% plotting
+t = [0:0.01:0.98];
+y1 = sin(2*pi*4*t); 
+plot(t,y1);
+y2 = cos(2*pi*4*t);
+hold on;  % "hold off" to turn off
+plot(t,y2,'r');
+xlabel('time');
+ylabel('value');
+legend('sin','cos');
+title('my plot');
+print -dpng 'myPlot.png'
+print -eps 'myPlot.eps'
+close;           % or,  "close all" to close all figs
+figure(1); plot(t, y1);
+figure(2); plot(t, y2);
+figure(2), clf;  % can specify the figure number
+subplot(1,2,1);  % Divide plot into 1x2 grid, access 1st element
+plot(t,y1);
+subplot(1,2,2);  % Divide plot into 1x2 grid, access 2nd element
+plot(t,y2);
+axis([0.5 1 -1 1]);  % change axis scale
+
+%% display a matrix (or image) 
+figure;
+imagesc(magic(15)), colorbar, colormap gray;
+% comma-chaining function calls.  
+a=1,b=2,c=3
+a=1;b=2;c=3;
+\end{lstlisting}
+
+
+\subsection{Control Statements}
+\begin{lstlisting}[label=lst:ctrlState, caption=Control Statements in Octave]
+v = zeros(10,1);
+for i=1:10, 
+    v(i) = 2^i;
+end;
+% Can also use "break" and "continue" inside for and while loops to control execution.
+
+i = 1;
+while i <= 5,
+  v(i) = 100; 
+  i = i+1;
+end
+
+i = 1;
+while true, 
+  v(i) = 999; 
+  i = i+1;
+  if i == 6,
+    break;
+  end;
+end
+
+if v(1)==1,
+  disp('The value is one!');
+elseif v(1)==2,
+  disp('The value is two!');
+else
+  disp('The value is not one or two!');
+end
+\end{lstlisting}
+
+\subsection{Vectorization}
+Vectorization is the process of taking code that relies on loops and converting it into matrix operations. It is more efficient, more elegant, and more concise.
+As an example, let's compute our prediction from a hypothesis (see listing \ref{lst:vectorization}). Theta is the vector of fields for the hypothesis and x is a vector of variables.
+\begin{lstlisting}[label=lst:vectorization, caption=Vectorization Example]
+% With loops:
+prediction = 0.0;
+for j = 1:n+1,
+  prediction += theta(j) * x(j);
+end;
+
+% With vectorization:
+prediction = theta' * x;
+\end{lstlisting}
+
+If you recall the definition multiplying vectors, you'll see that this one operation does the element-wise multiplication and overall sum in a very concise notation.
+
+TODO: ADD HERE THE LAST PART OF VIDEO TALKING ABOUT \textbf{VECTORIZATION OF GRADIENT DESCENT IN COMPUTING} $\theta$.
