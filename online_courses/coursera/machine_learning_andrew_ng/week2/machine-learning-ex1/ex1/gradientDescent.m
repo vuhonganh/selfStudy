@@ -18,7 +18,7 @@ for iter = 1:num_iters
     %
 
     buffer = X' * (X * theta - y);
-    theta = theta -(alpha / m) * buffer;
+    theta = theta - (alpha / m) * buffer;
 
 
 

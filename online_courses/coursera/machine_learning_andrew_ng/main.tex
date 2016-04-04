@@ -33,6 +33,10 @@
     breaklines,
     language=Octave,
 }
+% Rermove
+\makeatletter
+\renewcommand*{\l@lstlisting}{\@dottedtocline{1}{0em}{2.3em}}
+\makeatother
 
 
 % Hyper link setup
@@ -51,6 +55,31 @@
 
 % No indent at the first line of a paragraph
 \setlength\parindent{0pt}
+
+% List of equations
+\usepackage[titles]{tocloft}
+\newcommand{\listequationsname}{List of Equations}
+\newlistof{myequations}{equ}{\listequationsname}
+% myequation takes in its display name
+\newcommand{\myequations}[1]{%
+% display name is printed
+%\addcontentsline{equ}{myequations}{\protect\numberline{\theequation}#1}\par}
+\addcontentsline{equ}{myequations}{\protect\numberline{\theequation}#1}}
+\setlength{\cftmyequationsnumwidth}{2.3em}% Width of equation number in List of Equations
+
+% List of alignment
+\newcommand{\listalignsname}{List of Formulas}
+\newlistof{myaligns}{ali}{\listalignsname}
+% myaligns takes in its display name
+\newcommand{\myaligns}[1]{%
+% display name is printed
+\addcontentsline{ali}{myaligns}{\protect\numberline{\theequation}#1}}
+\setlength{\cftmyalignsnumwidth}{2.3em}% Width of formula number in List of Formulas
+
+\setlength{\cftfigindent}{0pt}  % remove indentation from figures in lof
+\setlength{\cfttabindent}{0pt}  % remove indentation from tables in lot
+
+%% ---------------------------- BEGIN DOCUMENT ----------------------------
 
 \begin{document}
 \boldmath
@@ -97,6 +126,10 @@
 \listoffigures
 
 \lstlistoflistings
+
+%\listofmyequations %use myaligns instead
+
+\listofmyaligns
 
 \chapter{Week 1} 
 \input{week1/note}

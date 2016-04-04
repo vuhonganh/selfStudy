@@ -17,18 +17,40 @@ x_0^{(i)} \\
 x_1^{(i)} \\
 ... \\
 x_n^{(i)}
-\end{pmatrix} \in \Re^{n+1} \hspace{0.8cm} \theta = \begin{pmatrix}
+\end{pmatrix} \in \Re^{n+1}  
+\]
+and matrix form of $\theta$ is:
+\begin{align} \label{form:MatTheta}
+\theta = \begin{pmatrix}
 \theta_0 \\
 \theta_1 \\
 ... \\
 \theta_n
 \end{pmatrix} \in \Re^{n+1}
-\]   
+\end{align}
+\myaligns{Vector Parameters}
 and
 \begin{align}
 \label{form:w2mulVarH}
 h_\theta(x^{(i)}) = \theta^{T}x^{(i)}
 \end{align}
+
+We can rewrite them in matrix form like this:
+\begin{align} \label{eq:hypo}
+  h_\theta(X) = X\theta 
+\end{align}
+\myaligns{H function}
+
+where $X$ is a $m \times (n+1)$ matrix of input (all features in all training examples, each column is each feature vector):
+\begin{align} \label{form:matX}
+X &= \begin{pmatrix}
+x_0^{(1)} & x_1^{(1)} & x_2^{(1)} & ... & x_n^{(1)} \\
+x_0^{(2)} & x_1^{(2)} & x_2^{(2)} & ... & x_n^{(2)} \\
+...       & ...       & ...       & ... & ...\\
+x_0^{(m)} & x_1^{(m)} & x_2^{(m)} & ... & x_n^{(m)}
+\end{pmatrix}
+\end{align}
+\myaligns{Matrix of Input}
 
 \subsection{Gradient Descent for Multiple Variables}
 For $j = 0,..,n $ simultaneously update:
@@ -44,6 +66,7 @@ Feature scaling is a method used to standardize the range of independent variabl
 \label{form:w2FeatScale}
 x_j^{(i)} := \frac{x_j^{(i)} - \Sigma_{i=1}^{m} x_j^{(i)}/m}{max_{i=1..m}(x_j^{(i)}) - min_{i=1..m}(x_j^{(i)})} 
 \end{align}
+\myaligns{Feature Scaling}
 One question: how to prove analytically that the problem remains the same after this change?
 
 \subsection{Learning Rate}
@@ -54,27 +77,22 @@ If we want to fit a relation like: $h_\theta(x) = \theta_0 + \theta_1 x + \theta
 
 \section{Computing Parameters Analytically}
 The course only provided the result without a concrete proof. I will add if I have time. The idea is all partial derivatives of cost function of features equals 0: $\frac{\partial J(\theta)}{\partial \theta_j} = 0$ for $j=0,..,n$. The result is:
-\[
+\begin{align} \label{form:paraAna}
 \theta = (X^T X)^{-1}X^Ty
-\]
-where $X$ is the $m \times (n+1)$ matrix constituted by features vectors (each column is each feature vector):
-\[
-X = \begin{pmatrix}
-x_0^{(1)} & x_1^{(1)} & x_2^{(1)} & ... & x_n^{(1)} \\
-x_0^{(2)} & x_1^{(2)} & x_2^{(2)} & ... & x_n^{(2)} \\
-...       & ...       & ...       & ... & ...\\
-x_0^{(m)} & x_1^{(m)} & x_2^{(m)} & ... & x_n^{(m)}
-\end{pmatrix} \hspace{0.8cm} 
-\]
+\end{align}
+\myaligns{Analytical Form of $\theta$}
+where $X$ is the $m \times (n+1)$ input matrix declared in \eqref{form:matX}.
 and $y$ is the vector of output:
-\[
-y = \begin{pmatrix}
+\begin{align}
+y = \begin{pmatrix} \label{form:matY}
 y^{(1)} \\
 y^{(2)} \\
 ... \\
 y^{(m)}
 \end{pmatrix}
-\]
+\end{align}
+\myaligns{Vector of Output}
+
 In Octave, to compute this, it's \textbf{pinv}(X$'$*X)*X$'$*y. For big $m$ and $n$, we need to switch from Analytical Method to Gradient Descent Method because it takes $O(n^3)$ to compute $(X^TX)^{-1}$. \\
 Note that in Octave, \textbf{pinv} is pseudo-inverse and it'll give correct answer even if $X^TX$ is non-invertible. To avoid $X^TX$ is non-invertible, we can remove redundant features (like two features are size in $feet^2$ and feature size in $m^2$) and delete features if we have too many features compared to the number of training examples (i.e. $m \leq n$). 
 
@@ -339,7 +357,7 @@ else
 end
 \end{lstlisting}
 
-\subsection{Vectorization}
+\section{Vectorization}
 Vectorization is the process of taking code that relies on loops and converting it into matrix operations. It is more efficient, more elegant, and more concise.
 As an example, let's compute our prediction from a hypothesis (see listing \ref{lst:vectorization}). Theta is the vector of fields for the hypothesis and x is a vector of variables.
 \begin{lstlisting}[label=lst:vectorization, caption=Vectorization Example]
@@ -352,7 +370,14 @@ end;
 % With vectorization:
 prediction = theta' * x;
 \end{lstlisting}
+We will rewrite some formulas in matrix form in order to easily write them in code. For example, the \textbf{Cost Function} can be rewritten as in \eqref{form:matCostFunc} where $X$, $y$ and $\theta$ are represented respectively in formulas \eqref{form:matX}, \eqref{form:matY} and \eqref{form:MatTheta}.
+\begin{align} \label{form:matCostFunc}
+J(\theta) = \frac{1}{2m} (X\theta - y)^T(X\theta - y)
+\end{align}
+\myaligns{Cost Function in matrix form}
 
-If you recall the definition multiplying vectors, you'll see that this one operation does the element-wise multiplication and overall sum in a very concise notation.
-
-TODO: ADD HERE THE LAST PART OF VIDEO TALKING ABOUT \textbf{VECTORIZATION OF GRADIENT DESCENT IN COMPUTING} $\theta$.
+Matrix form of \textbf{Gradient Descent Method} to compute parameters $\theta$ is shown in formula \eqref{form:matGradDesc}.
+\begin{align} \label{form:matGradDesc}
+\theta := \theta - \frac{\alpha}{m}(X^T)(X\theta - y)
+\end{align}
+\myaligns{Gradient Descent in matrix form}

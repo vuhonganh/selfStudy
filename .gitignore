@@ -5,6 +5,8 @@ main.dvi
 main.lof
 main.out
 main.toc
+main.ali
+main.equ
 *.pdf
 *.png
 usefull.tex
