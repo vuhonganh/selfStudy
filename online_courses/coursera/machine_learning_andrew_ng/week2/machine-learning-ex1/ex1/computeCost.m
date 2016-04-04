@@ -13,7 +13,10 @@ J = 0;
 % Instructions: Compute the cost of a particular choice of theta
 %               You should set J to the cost.
 
-
+buffer = X * theta - y;
+buffer = buffer .^ 2;
+J = sum(buffer(:));
+J = J / (2 * m);
 
 
 
