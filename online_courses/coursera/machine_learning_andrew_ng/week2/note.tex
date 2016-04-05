@@ -63,10 +63,14 @@ Note that $x_0^{(i)} = 1$ for $i = 1,..,m$ in the training set.
 \subsection{Feature Scaling}
 Feature scaling is a method used to standardize the range of independent variables or features of data. In data processing, it is also known as data normalization and is generally performed during the data preprocessing step. Since the range of values of raw data varies widely, in some machine learning algorithms, especially in Gradient Descent, objective functions will not work properly without normalization. We can rescale a feature value $x_j^{(i)}$, for $j > 0$ like this (do not apply with $x_0^{(i)} = 1$):
 \begin{align}
-\label{form:w2FeatScale}
 x_j^{(i)} := \frac{x_j^{(i)} - \Sigma_{i=1}^{m} x_j^{(i)}/m}{max_{i=1..m}(x_j^{(i)}) - min_{i=1..m}(x_j^{(i)})} 
 \end{align}
+The value $\Sigma_{i=1}^{m} x_j^{(i)}/m$ is in fact the mean value of feature $j$, hence we denote it as $\overline{x_j}$. We can also replace the range $max_{i=1..m}(x_j^{(i)}) - min_{i=1..m}(x_j^{(i)})$ by the standard deviation $\sigma_j$:
+\begin{align} \label{form:w2FeatScale}
+x_j^{(i)} := \frac{x_j^{(i)} - \overline{x_j}}{\sqrt{\frac{1}{m-1}\Sigma_i(x_j^{(i)} - \overline{x_j})^2}} 
+\end{align}
 \myaligns{Feature Scaling}
+
 One question: how to prove analytically that the problem remains the same after this change?
 
 \subsection{Learning Rate}

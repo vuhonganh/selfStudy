@@ -1,0 +1,22 @@
+This is my personal note covering the whole course. This could be some mathematical notations or some piece of frequently used code. 
+\section{\textbf{mean} and \textbf{std} in Octave}
+\textbf{mean} and \textbf{std} of a vector in Octave are computer without difficulty. But how about matrix? Since every thing in Octave is a matrix (a vector is just a matrix having a dimension equal one) we should be able to compute \textbf{mean} and \textbf{std} of a matrix. Let's take $X$ - the matrix of input in \eqref{form:matX} as an example.
+\begin{align*}
+X &= \begin{pmatrix}
+x_0^{(1)} & x_1^{(1)} & x_2^{(1)} & ... & x_n^{(1)} \\
+x_0^{(2)} & x_1^{(2)} & x_2^{(2)} & ... & x_n^{(2)} \\
+...       & ...       & ...       & ... & ...\\
+x_0^{(m)} & x_1^{(m)} & x_2^{(m)} & ... & x_n^{(m)}
+\end{pmatrix}
+\end{align*}
+
+\textbf{mean} and \textbf{std} of X will be computed \textbf{column by column} as below:
+\begin{align}
+mean(X) &= \begin{pmatrix}
+\overline{x_0} & \overline{x_1} & ... & \overline{x_n}
+\end{pmatrix} \nonumber \\
+std(X) &= \begin{pmatrix}
+\sigma_0 & \sigma_1 & ... & \sigma_n
+\end{pmatrix}
+\end{align}
+\myaligns{\textbf{mean} and \textbf{std} of matrix in Octave}
