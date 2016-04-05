@@ -1,5 +1,6 @@
 This is my personal note covering the whole course. This could be some mathematical notations or some piece of frequently used code. 
-\section{\textbf{mean} and \textbf{std} in Octave}
+\section{Octave tricks}
+\subsection{\textbf{mean} and \textbf{std} in Octave} \label{subsecMuStdOctave}
 \textbf{mean} and \textbf{std} of a vector in Octave are computer without difficulty. But how about matrix? Since every thing in Octave is a matrix (a vector is just a matrix having a dimension equal one) we should be able to compute \textbf{mean} and \textbf{std} of a matrix. Let's take $X$ - the matrix of input in \eqref{form:matX} as an example.
 \begin{align*}
 X &= \begin{pmatrix}
@@ -20,3 +21,30 @@ std(X) &= \begin{pmatrix}
 \end{pmatrix}
 \end{align}
 \myaligns{\textbf{mean} and \textbf{std} of matrix in Octave}
+
+\subsection{Feature Scaling in Octave}
+In subsection \ref{subsecMuStdOctave}, we saw how to compute a vector \textbf{mean} and a vector \textbf{std} in Octave. In feature scaling, for each feature, we need to subtract its \textbf{mean} and divide it by its \textbf{std}. It can be written in form of matrix operation if we have a proper matrix \textbf{mean} and a matrix \textbf{std} which has the same size as $X$ with all identical values in each column. They could be done by a matrix multiplication with a $m \times 1$ ones-matrix:
+\begin{align}
+matMean(X) = \begin{pmatrix}
+1 \\
+1 \\
+... \\
+1 \\
+\end{pmatrix} \times \begin{pmatrix}
+\overline{x_0} & \overline{x_1} & ... & \overline{x_n}
+\end{pmatrix}
+\end{align}
+The listing \ref{lstFeatScale} below shows how we can do it in code:
+\begin{lstlisting}[label=lstFeatScale, caption=Feature Scaling in Octave]
+mu = mean(X);    % returns a row vector
+sigma = std(X);  % returns a row vector
+
+m = size(X, 1);  % returns the number of rows in X
+
+% Etablish matrix of mean and matrix of std having same size as X
+mu_matrix = ones(m, 1) * mu;
+sigma_matrix = ones(m, 1) * sigma;
+
+% ./ is elements-wise division operation
+X_norm = (X - mu_matrix) ./ sigma_matrix;
+\end{lstlisting}
