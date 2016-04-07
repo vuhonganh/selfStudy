@@ -52,16 +52,20 @@ x_0^{(m)} & x_1^{(m)} & x_2^{(m)} & ... & x_n^{(m)}
 \end{align}
 \myaligns{Matrix of Input}
 
-\subsection{Gradient Descent for Multiple Variables}
+\subsection{Gradient Descent\index{Gradient Descent} for Multiple Variables}
 For $j = 0,..,n $ simultaneously update:
 \begin{align}
 \label{form:w2mulVarGradDesc}
 \theta_j := \theta_j - \alpha \frac{1}{m} \Sigma_{i=1}^{m} (h_{\theta}(x^{(i)}) - y^{(i)})x_j^{(i)}  
 \end{align}
-Note that $x_0^{(i)} = 1$ for $i = 1,..,m$ in the training set.
+Note that $x_0^{(i)} = 1$ for $i = 1,..,m$ in the training set. We can also rewrite this in vector form as in formula \eqref{formVecFormMulValGradDesc} below:
+\begin{align} \label{formVecFormMulValGradDesc}
+\theta := \theta - \alpha\frac{1}{m}\sum_{i=1}^{m}[(h_\theta(x^{(i)}) - y^{(i)}) \cdot x^{(i)}]
+\end{align}
+\myaligns{Vector Form of Parameters in Gradient Descent}
 
 \subsection{Feature Scaling}
-Feature scaling is a method used to standardize the range of independent variables or features of data. In data processing, it is also known as data normalization and is generally performed during the data preprocessing step. Since the range of values of raw data varies widely, in some machine learning algorithms, especially in Gradient Descent, objective functions will not work properly without normalization. We can rescale a feature value $x_j^{(i)}$, for $j > 0$ like this (do not apply with $x_0^{(i)} = 1$):
+Feature scaling is a method used to standardize the range of independent variables or features of data. In data processing, it is also known as data normalization and is generally performed during the data preprocessing step. Since the range of values of raw data varies widely, in some machine learning algorithms, especially in Gradient Descent\index{Gradient Descent}, objective functions will not work properly without normalization. We can rescale a feature value $x_j^{(i)}$, for $j > 0$ like this (do not apply with $x_0^{(i)} = 1$):
 \begin{align}
 x_j^{(i)} := \frac{x_j^{(i)} - \Sigma_{i=1}^{m} x_j^{(i)}/m}{max_{i=1..m}(x_j^{(i)}) - min_{i=1..m}(x_j^{(i)})} 
 \end{align}
@@ -97,7 +101,7 @@ y^{(m)}
 \end{align}
 \myaligns{Vector of Output}
 
-In Octave, to compute this, it's \textbf{pinv}(X$'$*X)*X$'$*y. For big $m$ and $n$, we need to switch from Analytical Method to Gradient Descent Method because it takes $O(n^3)$ to compute $(X^TX)^{-1}$. \\
+In Octave, to compute this, it's \textbf{pinv}(X$'$*X)*X$'$*y. For big $m$ and $n$, we need to switch from Analytical Method to Gradient Descent\index{Gradient Descent} Method because it takes $O(n^3)$ to compute $(X^TX)^{-1}$. \\
 Note that in Octave, \textbf{pinv} is pseudo-inverse and it'll give correct answer even if $X^TX$ is non-invertible. To avoid $X^TX$ is non-invertible, we can remove redundant features (like two features are size in $feet^2$ and feature size in $m^2$) and delete features if we have too many features compared to the number of training examples (i.e. $m \leq n$). 
 
 \section{Introduction to Octave}
@@ -308,8 +312,8 @@ xlabel('time');
 ylabel('value');
 legend('sin','cos');
 title('my plot');
-print -dpng 'myPlot.png'
-print -eps 'myPlot.eps'
+print -dpng 'myPlot.png' % save to png file
+print -deps 'myPlot.eps' % save to eps file
 close;           % or,  "close all" to close all figs
 figure(1); plot(t, y1);
 figure(2); plot(t, y2);

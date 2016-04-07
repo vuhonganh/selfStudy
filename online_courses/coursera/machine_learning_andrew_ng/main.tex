@@ -79,6 +79,14 @@
 \setlength{\cftfigindent}{0pt}  % remove indentation from figures in lof
 \setlength{\cfttabindent}{0pt}  % remove indentation from tables in lot
 
+
+% INDICES: NOT SO USEFUL IN MY CASE
+% \usepackage{imakeidx}
+% \makeindex[columns=2, title=Alphabetical Index, intoc]
+
+% To use mathbb represents mathematical form of capital letters
+\usepackage{amsfonts} 
+
 %% ---------------------------- BEGIN DOCUMENT ----------------------------
 
 \begin{document}
@@ -137,7 +145,11 @@
 \chapter{Week 2}
 \input{week2/note}
 
+\chapter{Week 3}
+\input{week3/note}
+
 \chapter{Personal Note}
 \input{personal/note}
 
+%\printindex
 \end{document}
