@@ -4,4 +4,4 @@ figure;
 plot(z,g);
 xlabel('z'); ylabel('g');
 axis([-20 20 -0.5 1.5]);
-print -deps 'sigmoid.eps'
+print -deps '../images/sigmoid.eps'
