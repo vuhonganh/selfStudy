@@ -105,7 +105,7 @@ Note that this gradient descent form of $\theta$ is the same as in Linear Regres
 We can see that: 
 \begin{itemize}
 	\item in Linear Regression: $g(X\theta) = X\theta$ is a linear function
-	\item in Logistic Regression: $g(X\theta) = \frac{1}{1 + e^{-X\theta}}$ is a sigmoid function
+	\item in Logistic Regression: $g(X\theta) = \dfrac{1}{1 + e^{-X\theta}}$ is a sigmoid function
 \end{itemize}
 
 The vectorized form of cost function can be expressed in formula \eqref{formCostFuncLogisMat} below.
@@ -135,3 +135,62 @@ Given a new input, we use the hypothesis that returns the highest probability as
 
 \section{Regularization}
 \subsection{The Problem of Overfitting}
+\textbf{Overfitting} (also called \textbf{high variance}) problem (figure \ref{overfitting}) is when we have a hypothesis function ($\theta$ found) that fits the current data but does not generalize well to predict new data.  It's usually caused by a complicated hypothesis function. For instance, using too many features i.e. $n \nearrow$ complicates $h_\theta(x)$. At the other extreme, \textbf{High bias} or \textbf{underfitting} is when the form of our hypothesis maps poorly to the trend of the data. It is usually caused by a function that is too simple or uses too few features. 
+
+\begin{figure}[!ht]
+\centering
+\includegraphics[scale = 0.8]{overfitting.eps}
+\caption{Overfitting and Underfitting problem}
+\label{overfitting}
+\end{figure}
+
+There are two main options to address the issue of overfitting:
+\begin{itemize}
+	\item Reduce the number of features.
+	\begin{itemize}
+		\item Manually select which features to keep
+		\item Use a model selection algorithm (studied later in the course)
+	\end{itemize}
+	\item Regularization: works well when we have a lot of slightly useful features
+	\begin{itemize}
+		\item Keep all the features, but reduce the parameters $\theta_j$
+	\end{itemize}
+\end{itemize}
+
+\subsection{Cost Function}
+The idea of regularization is to penalize $\theta_j, \; j=1..n+1$. By adding a cost for these parameters in the cost function, these parameters will have less effects than previously. $\theta_0$ is the constant adding to the hypothesis, which represents an average output of the system and therefore, it does not make sense to penalize this parameter $\theta_0$. For Linear Regression, the regularized cost function is expressed in formula \eqref{formReguLinCost} where $h_\theta(x) = \theta^Tx$.
+\begin{align} \label{formReguLinCost}
+J(\theta) = \frac{1}{2m} \left[ \ \sum_{i=1}^m (h_\theta(x^{(i)}) - y^{(i)})^2 + \lambda\ \sum_{j=1}^n \theta_j^2 \ \right]
+\end{align}
+\myaligns{Regularized Cost Function for Linear Regression}
+
+For logistic regression, the regularized cost is as follows where $ h_\theta(x) = \dfrac{1}{1 + e^{-\theta^Tx}}$:
+\begin{align} \label{formReguLogisCost}
+J(\theta) = - \frac{1}{m} \sum_{i=1}^m [ y^{(i)}\log(h_\theta (x^{(i)})) + (1 - y^{(i)})\log (1 - h_\theta(x^{(i)})) ] + \frac{\lambda}{2m}\sum_{j=1}^n \theta_j^2
+\end{align}
+\myaligns{Regularized Cost Function for Logistic Regression}
+
+The $\lambda$, or lambda, is the \textbf{regularization parameter}. It determines how much the costs of our theta parameters are inflated.
+
+\subsection{Regularized Regression}
+By partial derivative of formula \eqref{formReguLinCost} and \eqref{formReguLogisCost}. We have this regularized gradient descent formula (which is the same for both Linear and Logistic Regression):
+\begin{align}
+& \text{Repeat}\ \lbrace \nonumber \\
+& \ \ \ \ \theta_0 := \theta_0 - \alpha\ \frac{1}{m}\ \sum_{i=1}^m (h_\theta(x^{(i)}) - y^{(i)})x_0^{(i)} \\
+& \ \ \ \ \theta_j := \theta_j - \alpha\ \left[ \left( \frac{1}{m}\ \sum_{i=1}^m (h_\theta(x^{(i)}) - y^{(i)})x_j^{(i)} \right) + \frac{\lambda}{m}\theta_j \right] &\ \ \ \ \ \ \ \ \ \ j \in \lbrace 1,2...n\rbrace \nonumber\\
+& \rbrace \nonumber
+\end{align} 
+\myaligns{Gradient Descent for Regularized Regression}
+Specially in the case for Linear Regression, we can also compute by analytical method. The result is:
+\begin{align*}
+& \theta = \left( X^TX + \lambda \cdot L \right)^{-1} X^Ty \\
+& \text{where}\ \ L = 
+\begin{bmatrix}
+ 0 & & & & \\
+ & 1 & & & \\
+ & & 1 & & \\
+ & & & \ddots & \\
+ & & & & 1 \\
+\end{bmatrix}
+\end{align*}
+Note that $L$ is a $(n+1) \times (n+1)$ matrix having $1$ in diagonal except the first one (which corresponds to $\theta_0$) and $0$ for all the rest. Recall that (without proof and I do not know how to prove) if $ m \leq n$, then $X^TX$ is non-invertible. However, when we add the term $\lambda L$, then $X^TX + \lambda L$ becomes invertible.
