@@ -10,6 +10,7 @@ function out = mapFeature(X1, X2)
 %   Inputs X1, X2 must be the same size
 %
 
+% up to exponentiel 6 -> have 1 + 2 + 3 + ... + 7 = 28 new features 
 degree = 6;
 out = ones(size(X1(:,1)));
 for i = 1:degree

@@ -12,8 +12,11 @@ figure; hold on;
 %               examples and 'ko' for the negative examples.
 %
 
+posiElem = find(y == 1);
+negaElem = find(y == 0);
+plot(X(posiElem, 1), X(posiElem, 2), 'b+');
 
-
+plot(X(negaElem, 1), X(negaElem, 2), 'or');
 
 
 
