@@ -21,8 +21,20 @@ p = zeros(size(X, 1), 1);
 %       can use max(A, [], 2) to obtain the max for each row.
 %
 
+% Add collumn of 1 in X
+inLayer = [ones(m, 1) X];
 
+% The only one hidden layer named A1 can be computed by:
+A1 = sigmoid(Theta1 * inLayer');
 
+% Add row of 1 in A1
+rowOne = ones(1, size(A1, 2));
+A1 = [rowOne; A1];
+
+% The result can be computed by:
+outputLayer = sigmoid(Theta2 * A1);
+
+[val, p] = max(outputLayer', [], 2);
 
 
 
