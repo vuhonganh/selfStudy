@@ -40,13 +40,14 @@ Theta2_grad = zeros(size(Theta2));
 %         computed in ex4.m
 
 %Add bias units (1) to input layer
-inputLayer = [ones(1, m) ; X'];
+inputLayer = [ones(1, m) ; X']; % 401 * 5000
 
 %Hidden layer A2 is:
-A2 = sigmoid(Theta1 * inputLayer);
+Z2 = Theta1 * inputLayer; % 25 * 5000
+A2 = sigmoid(Z2); 
 
 %Add bias units (1) to hidden layer
-A2 = [ones(1,m); A2];
+A2 = [ones(1,m); A2]; %26 * 5000
 
 %Output layer is:
 outputLayer = sigmoid(Theta2 * A2);
@@ -71,6 +72,11 @@ J += sum( (yMat .* (log(outputLayer)))(:) );
 J += sum( ((1 - yMat) .* (log(1 - outputLayer)))(:));
 
 J /= -m;
+
+%Add regularized terms:
+J += sum( (Theta1(:, (2:end)) .* Theta1(:, (2:end)))(:)) * lambda / ( 2 * m);
+J += sum( (Theta2(:, (2:end)) .* Theta2(:, (2:end)))(:)) * lambda / ( 2 * m);
+
 %
 % Part 2: Implement the backpropagation algorithm to compute the gradients
 %         Theta1_grad and Theta2_grad. You should return the partial derivatives of
@@ -86,7 +92,19 @@ J /= -m;
 %         Hint: We recommend implementing backpropagation using a for-loop
 %               over the training examples if you are implementing it for the 
 %               first time.
-%
+
+%inputLayer 
+
+smallDelta3 = outputLayer - yMat; %10 * 5000
+smallDelta2 = (Theta2(:, 2:end)' * smallDelta3) .* sigmoidGradient(Z2); %25*5000
+for i=1:m,
+	Theta1_grad += (smallDelta2(:, i) * inputLayer(:, i)')/m;
+end
+
+for i=1:m,
+	Theta2_grad += (smallDelta3(:, i) * A2(:, i)')/m;
+end
+
 % Part 3: Implement regularization with the cost function and gradients.
 %
 %         Hint: You can implement this around the code for
@@ -95,22 +113,9 @@ J /= -m;
 %               and Theta2_grad from Part 2.
 %
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+%Regularized gradient:
+Theta1_grad(:, 2:end) += lambda / m * Theta1(:, 2:end);
+Theta2_grad(:, 2:end) += lambda / m * Theta2(:, 2:end); 
 
 
 % -------------------------------------------------------------
