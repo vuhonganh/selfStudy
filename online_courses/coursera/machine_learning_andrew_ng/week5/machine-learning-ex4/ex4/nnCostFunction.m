@@ -38,6 +38,39 @@ Theta2_grad = zeros(size(Theta2));
 %         variable J. After implementing Part 1, you can verify that your
 %         cost function computation is correct by verifying the cost
 %         computed in ex4.m
+
+%Add bias units (1) to input layer
+inputLayer = [ones(1, m) ; X'];
+
+%Hidden layer A2 is:
+A2 = sigmoid(Theta1 * inputLayer);
+
+%Add bias units (1) to hidden layer
+A2 = [ones(1,m); A2];
+
+%Output layer is:
+outputLayer = sigmoid(Theta2 * A2);
+
+%First solution: Compute cost function by foor loop:
+% for i = 1:m,
+% 	for j = 1:num_labels,
+% 		J += (y(i) == j) * log(outputLayer(j,i)) + (1 - (y(i) == j)) * log(1 - outputLayer(j,i)); 
+% 	end
+% end
+%J /= (-m);
+
+
+%Second solution: Compute cost function by matrix operation:
+%First, make y become a matrix m*(num_labels) having for each row only one 1  at the index equals to its value
+%create a sparse matrix having m rows, num_labels collumns
+%fill the positions [(1:m) y] by value 1
+yMat = full(sparse((1:m), y, 1, m, num_labels)); 
+yMat = yMat'; %transpose to have the same dims as outputLayer matrix
+
+J += sum( (yMat .* (log(outputLayer)))(:) );
+J += sum( ((1 - yMat) .* (log(1 - outputLayer)))(:));
+
+J /= -m;
 %
 % Part 2: Implement the backpropagation algorithm to compute the gradients
 %         Theta1_grad and Theta2_grad. You should return the partial derivatives of
