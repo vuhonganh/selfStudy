@@ -84,6 +84,17 @@
 % \usepackage{imakeidx}
 % \makeindex[columns=2, title=Alphabetical Index, intoc]
 
+
+% Glossary
+\newcommand*{\glossaryname}{Glossary}
+\usepackage[nonumberlist,toc]{glossaries}
+\newcommand{\dictentry}[2]{%
+  \newglossaryentry{#1}{name=#1,description={#2}}%
+  \glslink{#1}{}%
+}
+\makeglossaries
+
+
 % To use mathbb represents mathematical form of capital letters
 \usepackage{amsfonts} 
 
@@ -122,6 +133,8 @@
     \end{center}
 \end{titlepage}
 
+
+
 %\setcounter{tocdepth}{2}
 \tableofcontents
 
@@ -138,6 +151,10 @@
 %\listofmyequations %use myaligns instead
 
 \listofmyaligns
+
+\dictentry{PGM}{Probabilistic Graphical Model}%
+\dictentry{PDF}{Probability Distribution Function}%
+\printglossary[style=list]%
 
 \chapter{Week 1} 
 \input{week1/note}

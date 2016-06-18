@@ -1,12 +1,19 @@
+OBJ := main
+
 build: 
-	latex main.tex
+	latex $(OBJ)
+	makeglossaries $(OBJ)
+	latex $(OBJ)
+	latex $(OBJ)
 
 .PHONY: clean
+
+#note that a space is needed between {} and \;
 clean:
-	rm -rf main.aux main.log main.dvi main.pdf main.toc main.out main.lof main.lol
+	find . -name 'main.*' ! -name '*.tex' -exec rm -rf {} \;
 
-pdf:
-	pdflatex main.tex
+pdf: 
+	pdflatex $(OBJ)
 
-show:
-	xdvi main.dvi
+show: 
+	xdvi $(OBJ)
