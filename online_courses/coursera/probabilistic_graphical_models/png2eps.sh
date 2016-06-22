@@ -2,7 +2,7 @@
 
 # File: png2eps.sh: convert every .png file to .eps if the latter does not exist
 
-for FILE in ./images/*.png
+for FILE in `find ./images -name '*.png'`
 do
     FILENAME=`basename $FILE .png`;
     [ ! -e ./images/${FILENAME}.eps ] && convert ./images/${FILENAME}.png eps3:./images/${FILENAME}.eps
