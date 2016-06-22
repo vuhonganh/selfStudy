@@ -1,7 +1,7 @@
 This is the week 1 of the course Probabilistic Graphical Models (pgm) by Prof. Daphne Koller hosted on Coursera. The week 1 covers quite a lot of notions from distribution to Bayesian Network.
 
 \section{Distribution}
-A probability distribution function (aka PDF, probability density function, probability function, or density) is a function that indicates the probability that a given random variable will take on a particular value. If a random variable is discrete (i.e. the value of the random variable is contained in a countable set of values), then the probability density function, $f(x)$ of a random variable $X$ is: $f(x) = \mathbb{P}(X = x)$.\\
+A probability distribution function (aka PDF, probability density function, probability function, or density) is a function that indicates the probability that a given random variable will take on a particular value. If a random variable is discrete (i.e. the value of the random variable is contained in a countable set of values), then the probability density function, $f(x)$ of a random variable $X$ is: $f(x) = P(X = x)$.
 
 The multivariate form of a probability distribution function is the probability that a list of random variables will take on a list of values. If the random variables are discrete, the \textbf{joint probability density function}, $f(x_1, x_2, …, x_n)$ for random variables $X_1, X_2, ..., X_n$ is defined by: 
 \begin{align}
@@ -17,12 +17,49 @@ A factor is a function or a table or a mapping from every assignment of argument
 \myaligns{Factor Definition}
 
 \subsection{Examples of Factor}
-Hence, according to the definition above, a joint distribution is a factor. Figure \ref{w1JointDistri} illustrates a joint distribution $\mathbb{P}(I,D,G)$ where $I$, $D$, $G$ represents intelligence of a student $(0, 1)$, difficulty of a course $(0,1)$, and the final grade $(A,B,C)$ that student got from that course respectively.
+Hence, according to the definition above, a joint distribution is a factor. Figure \ref{w1JointDistri} illustrates a joint distribution $P(I,D,G)$ where $I$, $D$, $G$ represents intelligence of a student $(0, 1)$, difficulty of a course $(0,1)$, and the final grade $(A,B,C)$ that student got from that course respectively.
 \begin{figure}[!ht]
 \centering
-\includegraphics[scale = 0.6]{w1JointDistri}
-\caption{bla bla}
+\includegraphics[scale = 0.3]{w1JointDistri}
+\caption{Joint Distribution}
 \label{w1JointDistri}
 \end{figure}
 
+Another example is UnnormaliCed Measure $P(I,D,g^1)$ which has scope $(I,D)$ because $G$ is always fixed to $g^1$. Another \textbf{important example} is Conditional Probability Distribution (CPD). Figure \ref{w1CPD} illustrates the \textbf{CPD} $P(G | I, D)$ which means for every combination of values to the variable $I$ and $D$, we have a probability distribution over $G$.  
+
+\begin{figure}[!ht]
+\centering
+\includegraphics[scale = 0.4]{w1CPD}
+\caption{Conditional Probability Distribution (CPD)}
+\label{w1CPD}
+\end{figure}
+
 \section{Operations on Factors}
+\subsection{Factor Products}
+If $\Phi_1(A,B)$ and $\Phi_2(B,C)$ are two factors then we compute their product of $\Phi(A,B,C)$ by multiplying $\Phi_1(A,B)\Phi_2(B,C)$ for all common values of $B$ (see figure \ref{w1FactProd}).
+
+\begin{figure}[!ht]
+\centering
+\includegraphics[scale = 0.3]{w1FactProd}
+\caption{Factor Products}
+\label{w1FactProd}
+\end{figure}
+
+\subsection{Factor Marginalization}
+That's when we want to reduce the scope. For example, we reduce scope $(A,B,C)$ to $(A,C)$ by summing over $B$ for every assignment of $(A,C)$ (figure \ref{w1FactMarginal}).
+
+\begin{figure}[!ht]
+\centering
+\includegraphics[scale = 0.35]{w1FactMarginal}
+\caption{Factor Marginalization}
+\label{w1FactMarginal}
+\end{figure}
+
+\subsection{Factor Reduction}
+That's when we fix a random variable in the scope by one value (in its set of values). For example, $\Phi(A,B,C)$ is reduced to $\Phi(A,B | C = c^1)$ in illustration \ref{w1FactReduce}.
+\begin{figure}[!ht]
+\centering
+\includegraphics[scale = 0.35]{w1FactReduce}
+\caption{Factor Reduction}
+\label{w1FactReduce}
+\end{figure}
