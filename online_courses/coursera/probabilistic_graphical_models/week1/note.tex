@@ -63,3 +63,50 @@ That's when we fix a random variable in the scope by one value (in its set of va
 \caption{Factor Reduction}
 \label{w1FactReduce}
 \end{figure}
+
+\section{Semantics And Factorization}
+\subsection{The Student Example}
+The student example involving the situation where students take a course. It contains the following random variables:
+\begin{itemize}
+	\item Course \textbf{D}ifficulty $(D)$ ($0$ = not difficult, $1$ = difficult)
+	\item Student \textbf{I}ntelligence $(I)$ ($0$ = not intelligent, $1$ = intelligent)
+	\item \textbf{G}rade $(G)$ ($1$ = A, $2$ = B, $3$ = C)
+	\item Student \textbf{S}AT score $(S)$ ($0$ = not good, $1$ = good)
+	\item Reference \textbf{L}etter from the prof. of this course $(L)$ ($0$ = not referred, $1$ = referred)
+\end{itemize}
+
+The dependency graph is shown in figure \ref{w1graphCPD}. Intuitively, we can see the directed edge meaning a strong relation between the 2 variables. We also annotate each node of the dependency graph to a CPD (Conditional Probability Distribution). NB: I do not know where this comes from, maybe we can calculate them from the data set. We have the chain rule for Bayesian Networks in this example is described in formula below.
+\begin{align}
+P(G|I,D)P(S|I)P(L|G)P(D)P(I) = P(D,I,G,S,L)
+\end{align}
+\myaligns{Chain Rule for Bayesian Networks}
+
+\begin{figure}[!ht]
+\centering
+\includegraphics[scale = 0.3]{w1graphCPD}
+\caption[Dependency Graph]{Dependency Graph: $D \rightarrow G$, $I \rightarrow G$, $I \rightarrow S$, $G \rightarrow L$}
+\label{w1graphCPD}
+\end{figure}
+
+
+\subsection{Bayesian Network Definition}
+Bayesian Network is:
+\begin{itemize}
+	\item a directed acyclic graph (DAG) G whose nodes represent the random variables $X_1,..,X_n$
+	\item for each node $X_i$, there is a CPD: $P(X_i | Parents_G(X_i))$
+	\item represents a joint distribution via the chain rule for Bayesian Networks in formula \ref{formChainRule} 
+	\begin{align}\label{formChainRule}
+	P(X_1,..,X_n) = \prod_i P(X_i|Parents_G(X_i))
+	\end{align}
+	\myaligns{Bayesian Network Definition}
+\end{itemize}
+We can prove that Bayesian Network is a legal distribution meaning it satisfies $P \geq 0$ and $\sum_i P(X_i) = 1$. The first one is trivial. The second one is proved as follow:
+\begin{align*}
+\sum_{D,I,G,S,L} P(D,I,G,S,L) 	&= \sum_{D,I,G,S,L} P(D)P(I)P(G|I,D)P(S|I)P(L|G) \\
+								&= \sum_{D,I,G,S} P(D)P(I)P(G|I,D)P(S|I) \sum_L P(L|G) \\
+								&= \sum_{D,I,G,S} P(D)P(I)P(G|I,D)P(S|I) * 1\\
+								&= \sum_{D,I,G} P(D)P(I)P(G|I,D) \sum_S P(S|I)\\
+								&= \sum_{D,I} P(D)P(I) \sum_G P(G|I,D)\\
+								&= ...\\
+								&= 1
+\end{align*}
