@@ -18,6 +18,39 @@ def card_ranks(cards):
     return ranks
 
 
+def straight(ranks):
+    "Return True if the ordered ranks form a 5-card straight."
+	high = max(ranks)
+	return ranks == [high, high - 1, high - 2, high - 3, high - 4]    
+
+
+def flush(hand):
+    "Return True if all the cards have the same suit."
+    suits = [s for r,s in hand]
+    for i in range(len(suits) - 1):
+    	if suits[-1] != suits[i]:
+    		return False
+	return True
+	# another way which is shorter is return len(set(suits)) == 1  
+
+
+def kind_ver1(n, ranks):
+	"""Return the first rank that this hand has exactly n of.
+    Return None if there is no n-of-a-kind in the hand."""
+    nb_occur = [0 for r in ranks]
+    courser = 0
+    posi = 0
+    for i in range(len(ranks)):
+		if ranks[courser] != ranks[i]:
+			courser += 1
+		nb_occur[courser] += 1
+	for i in range(len(nb_occur)):
+		posi += nb_occur[i]
+		if nb_occur[i] == n :
+			return ranks[posi - 1]
+	return None
+
+
 def hand_rank(hand):
 	"""
 	Given a hand, return its rank in form of a tuple to break ties
@@ -64,6 +97,17 @@ def test():
     assert card_ranks(sf) == [10, 9, 8, 7, 6]
     assert card_ranks(fk) == [9, 9, 9, 9, 7]
     assert card_ranks(fh) == [10, 10, 10, 7, 7]
+
+    print card_ranks(['AC', '3D', '4S', 'KH']) #should output [14, 13, 4, 3]
+
+    tp = "5S 5D 9H 9C 6S".split() # Two pairs
+    fkranks = card_ranks(fk)
+    tpranks = card_ranks(tp)
+    assert kind(4, fkranks) == 9
+    assert kind(3, fkranks) == None
+    assert kind(2, fkranks) == None
+    assert kind(1, fkranks) == 7
 	return "test pass"
+
 
 print test()
