@@ -7,14 +7,9 @@ import random
 
 mydeck = [r+s for r in '23456789TJQKA' for s in 'SHDC']
 def deal(numhands, n=5, deck=mydeck):
-    hands = []
-    for i in range(numhands):
-        hand = []
-        for j in range(n):
-            hand.append(random.choice(deck))
-        hands.append(hand)
-    return hands
-                    
+    #first shuffle the deck and return each hand the nb of card n 
+    random.shuffle(deck)
+    return [ deck[i*n:(i+1)*n] for i in range(numhands)]                    
 
 
 def poker(hands):
