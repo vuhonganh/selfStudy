@@ -8,10 +8,8 @@ import itertools
 
 def best_hand(hand):
     "From a 7-card hand return the best 5-card hand"
-    all_states = list(itertools.combinations(hand, 5))
-    max_state = max(all_states, key=hand_rank)    
-    return max_state
-
+    return max(itertools.combinations(hand, 5), key=hand_rank)
+    
 
 mydeck = [r+s for r in '23456789TJQKA' for s in 'SHDC']
 def deal(numhands, n=5, deck=mydeck):
