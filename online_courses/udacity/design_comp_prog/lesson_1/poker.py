@@ -4,6 +4,14 @@
 # rank: the number(s) of a card, or a tuple of values of a hand
 
 import random
+import itertools
+
+def best_hand(hand):
+    "From a 7-card hand return the best 5-card hand"
+    all_states = list(itertools.combinations(hand, 5))
+    max_state = max(all_states, key=hand_rank)    
+    return max_state
+
 
 mydeck = [r+s for r in '23456789TJQKA' for s in 'SHDC']
 def deal(numhands, n=5, deck=mydeck):
@@ -157,4 +165,15 @@ def test():
 
     return "test pass"
 
+def test_best_hand():
+    assert (sorted(best_hand("6C 7C 8C 9C TC 5C JS".split()))
+            == ['6C', '7C', '8C', '9C', 'TC'])
+    assert (sorted(best_hand("TD TC TH 7C 7D 8C 8S".split()))
+            == ['8C', '8S', 'TC', 'TD', 'TH'])
+    assert (sorted(best_hand("JD TC TH 7C 7D 7S 7H".split()))
+            == ['7C', '7D', '7H', '7S', 'JD'])
+    return 'test_best_hand passes'
+
 print test()
+
+print test_best_hand()
