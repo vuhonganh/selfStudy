@@ -8,8 +8,9 @@ def solve(formula):
 
 def fill_in(formula):
 	"Generate all possible fillings-in of letters in formula with digits."
-	# Take all the distinct letters from formula: 
-	letters = ''.join(c for c in set(re.sub('[^A-Za-z]', '', formula)))
+	# Take all the distinct letters from formula: (can use re.findall() to achive the same result)
+	letters = ''.join(set(re.sub('[^A-Za-z]', '', formula)))
+	
 	for digits in itertools.permutations('1234567890', len(letters)):
 		table = string.maketrans(letters, ''.join(digits))
 		yield formula.translate(table)
@@ -27,10 +28,11 @@ def valid(f):
 a = re.search(r'\b0[0-9]', "0123")
 b = re.search('\\b0[0-9]', '1')
 c = re.search('abc', 'abcdef')
-d = re.split('[^a-zA-Z]', 'DEF23FGH15')
+# d = re.split('[^a-zA-Z]', 'DEF23FGH15')
+d = re.findall('[a-zA-Z]', 'DEF23FGH15')
 e = re.sub('[^a-zA-Z]', '', 'DEF23FGH15')
 f = set(e)
-letters = ''.join(c for c in set(re.sub('[^A-Za-z]', '', 'DEF23FGH15')))
+letters = ''.join(set(re.sub('[^A-Za-z]', '', 'DEF23FGH15')))
 
 print solve('A+A==B')
 print not a
