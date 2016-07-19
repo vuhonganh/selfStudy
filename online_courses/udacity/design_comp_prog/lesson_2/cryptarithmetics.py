@@ -9,8 +9,8 @@ def solve(formula):
 def fill_in(formula):
 	"Generate all possible fillings-in of letters in formula with digits."
 	# Take all the distinct letters from formula: (can use re.findall() to achive the same result)
-	letters = ''.join(set(re.sub('[^A-Za-z]', '', formula)))
-	
+	letters = ''.join(set(re.sub('[^A-Z]', '', formula)))
+
 	for digits in itertools.permutations('1234567890', len(letters)):
 		table = string.maketrans(letters, ''.join(digits))
 		yield formula.translate(table)
