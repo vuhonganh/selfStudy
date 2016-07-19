@@ -47,6 +47,20 @@ def compile_word(word):
         return word
 
 
+def compile_word_ver2(word):
+    """Compile a word of uppercase letters as numeric digits.
+    E.g., compile_word('YOU') => '(1*U+10*O+100*Y)'
+    Non-uppercase words unchanged: compile_word('+') => '+'"""
+    # reverse a word: word[::-1]
+    # extract a word into (index_character, correspond_character): use enumerate
+    if word.isupper():
+        term = [ ('%d*%s' % (10**i, d)) for (i, d) in enumerate(word[::-1])]        
+        # note the way we use string.join()
+        result = '(' + '+'.join(term) + ')'        
+        return result
+    else:
+        return word
+
 a = re.search(r'\b0[0-9]', "0123")
 b = re.search('\\b0[0-9]', '1')
 c = re.search('abc', 'abcdef')
@@ -69,3 +83,5 @@ print letters, len(letters)
 print g[-1]
 
 print compile_word('ABC')
+print compile_word_ver2('ABC')
+#print list(enumerate('ABC'))
