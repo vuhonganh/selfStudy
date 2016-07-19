@@ -37,7 +37,7 @@ def zebra_puzzle():
     "Return a tuple (WATER, ZEBRA indicating their house numbers."
     houses = first, _, middle, _, _ = [1, 2, 3, 4, 5]
     orderings = list(itertools.permutations(houses)) # 1
-    # use next to return the first feasible solution found
+    # use next to return the first feasible solution found (see more abt generator expression below)
     return next((WATER, ZEBRA)
                 for (red, green, ivory, yellow, blue) in orderings
                 if imright(green, ivory) # 6
@@ -61,6 +61,14 @@ def zebra_puzzle():
                 )
 
 print zebra_puzzle()
+
+"""
+Explain about generator expression: 
+a generator expression g is defined like this: g = ( term  for-clauses  options(for,ifs...) )
+note that it uses parentheses instead of square brackets and to retrive the value, call: next(g)
+if you ask again next(g) if will go through all the conditions and give you the second value
+Ex: g = (sq(x) for x in range(10) if x%2 == 0)
+"""
 
 import time
 
@@ -90,4 +98,29 @@ def timedcalls(n, fn, *args):
     		time_left -= one_time
     return min(times), average(times), max(times)
 
-print timedcalls(1.0, zebra_puzzle)
+#print timedcalls(1.0, zebra_puzzle) 
+
+#generator function
+def ints(start, end = None):
+    i = start
+    while i <= end or end is None:
+        yield i
+        i = i + 1
+    
+
+def all_ints():
+    "Generate integers in the order 0, +1, -1, +2, -2, +3, -3, ..."
+    g1 = ints(0)
+    g2 = ints(1)
+    i = 0
+    while True:
+    	if i < 2 or i % 2 == 1:    		
+    		yield next(g1)
+        else: 
+        	yield 0 - next(g2)
+    	i += 1
+
+
+g = all_ints()
+for i in range(10):
+	print next(g)
