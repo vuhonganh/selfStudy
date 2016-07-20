@@ -61,6 +61,43 @@ def compile_word_ver2(word):
     else:
         return word
 
+def compile_formula(formula, verbose=False):
+    """Compile formula into a function. Also return letters found
+    as a str, in same order as parameters of function. The first digit of a multi-digit number
+    can not be 0.
+    Ex: 'YOU == ME ** 2' returns
+    (lambda Y,M,E,U,O: (U + 10*O + 100*Y)  == (E + 10*M)**2), 'YMEUO' """
+    # all letters in the formula:
+    letters = ''.join(set(re.findall('[A-Z]', formula)))
+    # extract words in the formula: NOTE that the parentheses are IMPORTANT (it keeps the delimiters)
+    words = re.split('([A-Z]+)', formula)
+    tokens = map(compile_word, words)
+    
+    parameters = ','.join(letters)
+    body = ''.join(tokens)
+
+    f = 'lambda %s : %s' %(parameters, body)
+    if verbose: print f
+
+    # f is a string, to make it a function, need to do eval(f)
+    return eval(f), letters
+    
+
+def solve_faster_ver(formula):
+    """Given a formula like 'ODD + ODD == EVEN', fill in digits to solve it.
+    Input formula is a string; output is a digit-filled-in string or None.
+    This version precompiles the formula so it uses eval() only once per formula"""
+    func, letters = compile_formula(formula, True)
+    for digits in itertools.permutations((1,2,3,4,5,6,7,8,9,0), len(letters)):
+        try:
+            if func(*digits) is True:
+                # map(str, digits) is important to map each int in the array digits to string, then we can use string.join()
+                table = string.maketrans(letters, ''.join(map(str,digits))) 
+                return formula.translate(table)
+        except ArithmeticError:
+            pass 
+
+
 a = re.search(r'\b0[0-9]', "0123")
 b = re.search('\\b0[0-9]', '1')
 c = re.search('abc', 'abcdef')
@@ -71,8 +108,9 @@ f = set(e)
 letters = ''.join(set(re.sub('[^A-Za-z]', '', 'DEF23FGH15')))
 g = re.findall('[A-Z]', 'DEFFED')
 
+print solve_faster_ver('A**N + B**N == C**N and N > 1')
 
-print solve('A**N + B**N == C**N and N > 1')
+# print solve('A**N + B**N == C**N and N > 1')
 print not a
 print not b
 print c
