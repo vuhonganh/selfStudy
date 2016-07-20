@@ -29,12 +29,14 @@ def not_adjacent(fa, fb):
 
 def floor_puzzle():
     for (Hopper, Kay, Liskov, Perlis, Ritchie) in orderings:
-    	if Hopper != top:
-    		if Kay != bottom:
-    			if Liskov != top and Liskov != bottom:
-    				if Perlis > Kay:
-    					if not_adjacent(Ritchie, Liskov):
-    						if not_adjacent(Liskov, Kay):
-    							return [Hopper, Kay, Liskov, Perlis, Ritchie]
+    	if (Hopper != top
+    		and Kay != bottom 
+    		and Liskov != top 
+    		and Liskov != bottom
+    		and Perlis > Kay
+    		and not_adjacent(Ritchie, Liskov)
+    		and not_adjacent(Liskov, Kay)):
+    		
+    		return [Hopper, Kay, Liskov, Perlis, Ritchie]
 
 print floor_puzzle()
