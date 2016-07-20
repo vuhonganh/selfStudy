@@ -98,28 +98,9 @@ def solve_faster_ver(formula):
             pass 
 
 
-a = re.search(r'\b0[0-9]', "0123")
-b = re.search('\\b0[0-9]', '1')
-c = re.search('abc', 'abcdef')
-# d = re.split('[^a-zA-Z]', 'DEF23FGH15')
-d = re.findall('[a-zA-Z]', 'DEF23FGH15')
-e = re.sub('[^a-zA-Z]', '', 'DEF23FGH15')
-f = set(e)
-letters = ''.join(set(re.sub('[^A-Za-z]', '', 'DEF23FGH15')))
-g = re.findall('[A-Z]', 'DEFFED')
-
-print solve_faster_ver('A**N + B**N == C**N and N > 1')
-
-# print solve('A**N + B**N == C**N and N > 1')
-print not a
-print not b
-print c
-print d
-print e
-print len(f)
-print letters, len(letters)
-print g[-1]
-
-print compile_word('ABC')
-print compile_word_ver2('ABC')
-#print list(enumerate('ABC'))
+def test():
+    assert faster_solve('A + B == BA') == None # should NOT return '1 + 0 == 01'
+    assert faster_solve('YOU == ME**2') == ('289 == 17**2' or '576 == 24**2' or '841 == 29**2')
+    assert faster_solve('X / X == X') == '1 / 1 == 1'
+    return 'tests pass'
+test()
