@@ -71,10 +71,13 @@ def compile_formula(formula, verbose=False):
     letters = ''.join(set(re.findall('[A-Z]', formula)))
     # extract words in the formula: NOTE that the parentheses are IMPORTANT (it keeps the delimiters)
     words = re.split('([A-Z]+)', formula)
+    first_letters = set([word[0] for word in words if word.isupper()])
+    first_letters = [' and ' + first_letter + ' != 0 ' for first_letter in first_letters]
     tokens = map(compile_word, words)
     
     parameters = ','.join(letters)
     body = ''.join(tokens)
+    body += ''.join(first_letters)
 
     f = 'lambda %s : %s' %(parameters, body)
     if verbose: print f
@@ -87,7 +90,7 @@ def solve_faster_ver(formula):
     """Given a formula like 'ODD + ODD == EVEN', fill in digits to solve it.
     Input formula is a string; output is a digit-filled-in string or None.
     This version precompiles the formula so it uses eval() only once per formula"""
-    func, letters = compile_formula(formula, True)
+    func, letters = compile_formula(formula)
     for digits in itertools.permutations((1,2,3,4,5,6,7,8,9,0), len(letters)):
         try:
             if func(*digits) is True:
@@ -98,9 +101,9 @@ def solve_faster_ver(formula):
             pass 
 
 
-def test():
-    assert faster_solve('A + B == BA') == None # should NOT return '1 + 0 == 01'
-    assert faster_solve('YOU == ME**2') == ('289 == 17**2' or '576 == 24**2' or '841 == 29**2')
-    assert faster_solve('X / X == X') == '1 / 1 == 1'
+def test():    
+    assert solve_faster_ver('A + B == BA') == None # should NOT return '1 + 0 == 01'
+    assert solve_faster_ver('YOU == ME**2') == ('289 == 17**2' or '576 == 24**2' or '841 == 29**2')
+    assert solve_faster_ver('X / X == X') == '1 / 1 == 1'
     return 'tests pass'
-test()
+print test()
