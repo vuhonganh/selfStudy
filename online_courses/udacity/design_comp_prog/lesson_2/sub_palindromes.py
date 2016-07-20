@@ -45,7 +45,24 @@ def longest_subpalindrome_slice(text):
                 iBegin = i
     return (iBegin, iBegin + max_palin_length)
 
+def grow(text, start, end):
+    "Start with a 0- or 1- length palindrome, try to grow a bigger one. Return the new (start,end) of the biggest possible"
+    while(start > 0 and end < len(text) and text[start - 1].lower() == text[end].lower()):
+        start -= 1
+        end += 1
+    return (start, end)
 
+
+def O1space_subpalindrome_slice(text):
+    if text == '': return (0,0)
+    candidates = [grow(text, start, end) 
+                    for start in range(len(text)) 
+                    for end in (start, start + 1)]
+    return max(candidates, key=length_slice)
+
+def length_slice(slice):
+    a,b = slice
+    return b - a
 
 def isPalindrome(text):
     "Return True if text is palindrome, False otherwise"
@@ -53,7 +70,8 @@ def isPalindrome(text):
     return text_lowercase[::-1] == text_lowercase
     
 def test():
-    L = longest_subpalindrome_slice
+    # L = longest_subpalindrome_slice
+    L = O1space_subpalindrome_slice
     assert L('racecar') == (0, 7)
     assert L('Racecar') == (0, 7)
     assert L('RacecarX') == (0, 7)
@@ -65,4 +83,3 @@ def test():
     return 'tests pass'
 
 print test()
-# print longest_subpalindrome_slice('')
