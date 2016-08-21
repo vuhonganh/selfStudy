@@ -27,6 +27,13 @@ For example, matchset('a*', 'aaab') will return ['aaab', 'aab', 'ab', 'b']
 
 null = frozenset()
 
+def components(pattern):
+	"Return the op, x, and y arguments; x and y are None if missing."
+	x = pattern[1] if len(pattern) > 1 else None
+	y = pattern[2] if len(pattern) > 2 else None
+	return pattern[0], x, y
+
+
 def matchset(pattern, text):
 	"Match pattern at start of text, return a set of remainders of text"
 	op, x, y = components(pattern)
@@ -34,12 +41,8 @@ def matchset(pattern, text):
 		return set([text[len(x):]]) if text.startswith(x) else null
 	elif 'dot' == op:
 		return set([text[1:]]) if text else null
-	elif 'oneof' == op:
-		if not text: return null
-		else: 
-			for p in set(pattern):
-				if text.startswith(p):
-					return set([text[1:]])  
+	elif 'oneof' == op:	# oneof takes only one component x and match each character in this component to text	
+		return set([text[1:]]) if any(text.startswith(c) for c in x) else null
 	elif 'eol' == op:
 		return set(['']) if text == '' else null
 	elif 'alt' == op:
@@ -54,30 +57,46 @@ def matchset(pattern, text):
 	else:
 		raise ValueError('unknown pattern: %s' %pattern )
 
+# Turn these patterns into function. This is called compiler. The functions return matchset accordingly 
+def lit(x): return lambda text : set([text[len(x):]]) if text.startswith(x) else null
+
+def seq(x, y): return lambda text : set().union(*map(y, x(text)))
+
+def alt(x, y): return lambda text : x(text) | y(text)
+
+def oneof(chars): return lambda text : set([text[1:]]) if any(text.startswith(c) for c in chars) else null
+
+dot = lambda text : set([text[1:]]) if text else null
+
+eol = lambda text : set(['']) if text == '' else null
+
+def star(x) : return lambda text : ( set([text]) | set(rem2 for rem1 in x(text) for rem2 in star(x)(rem1) if rem1  != text))
 
 
+def search(pattern, text):
+	"Match pattern anywhere in text; return longest earliest match or None"
+	for i in range(len(text)):
+		m = match(pattern, text[i:])
+		if m: 
+			return m
+	return None
 
-def components(pattern):
-    "Return the op, x, and y arguments; x and y are None if missing."
-    x = pattern[1] if len(pattern) > 1 else None
-    y = pattern[2] if len(pattern) > 2 else None
-    return pattern[0], x, y
+def match(pattern, text):
+	"Match pattern against the start of text, return longest match or None"
+	remainders = pattern(text)
+	if remainders:
+		shortest = min(remainders, key=len)
+		return text[:(len(text) - len(shortest))]
+	else:
+		return None
 
 
 def test():
-    assert matchset(('lit', 'abc'), 'abcdef')            == set(['def'])
-    assert matchset(('seq', ('lit', 'hi '),
-                     ('lit', 'there ')), 
-                   'hi there nice to meet you')          == set(['nice to meet you'])
-    assert matchset(('alt', ('lit', 'dog'), 
-                    ('lit', 'cat')), 'dog and cat')      == set([' and cat'])
-    assert matchset(('dot',), 'am i missing something?') == set(['m i missing something?'])
-    assert matchset(('oneof', 'a'), 'aabc123')           == set(['abc123'])
-    assert matchset(('eol',),'')                         == set([''])
-    assert matchset(('eol',),'not end of line')          == frozenset([])
-    assert matchset(('star', ('lit', 'hey')), 'heyhey!') == set(['!', 'heyhey!', 'hey!'])
-    
+    assert match(star(lit('a')), 'aaaaabbbaa') == 'aaaaa'
+    assert match(lit('hello'), 'hello how are you?') == 'hello'
+    assert match(lit('x'), 'hello how are you?') == None
+    assert match(oneof('xyz'), 'x**2 + y**2 = r**2') == 'x'
+    assert match(oneof('xyz'), '   x is here!') == None
     return 'tests pass'
 
 print test()
-
