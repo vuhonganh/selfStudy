@@ -38,3 +38,61 @@ b_func = seq('x2', 'y2', 'z2')
 print b_func
 
 help(seq)
+
+@decorator
+def memo(f):
+    """
+    Decorator that caches the return value for each call to f(args)
+    Then when called again with some args, we can just look it up
+    """
+    cache = {} # a dictionary
+
+    def _f(*args):
+        try:
+            return cache[args]
+        except KeyError: # not computed previously
+            result = f(*args)
+            cache[args] = result
+            return result
+        except TypeError: # the args has an unexpected type such as a list (mutable is not allowed)
+            return f(*args)
+    _f.cache = cache # WHY ???
+    print("id in memo %s" %id(_f))
+    return _f
+
+@decorator
+def countcalls(f):
+    "Decorator that makes function count calls to it, in callcounts[f]"
+    def _f(*args):
+        callcounts[_f] += 1
+        return f(*args)
+    callcounts[_f] = 0
+    print("id in countcalls %s" % id(_f))
+    return _f
+
+callcounts = {} # initialize callcounts to an empty dict
+
+@countcalls
+def fib(n):
+    if n == 0 or n == 1:
+        return 1
+    else:
+        return fib(n-1) + fib(n-2)
+
+# countcalls must be followed by all other decorators because the order is reverse, i.e. it will be created at last
+# this is important because the id of the object (function) changes each time a decorator is called
+# so only the last one will be called and this must be initialized by countcalls previously
+@countcalls
+@memo
+def fib_with_memo(n):
+    if n == 0 or n == 1:
+        return 1
+    else:
+        return fib_with_memo(n-1) + fib_with_memo(n-2)
+
+print fib(20)
+print callcounts[fib]
+
+print fib_with_memo(20)
+print callcounts[fib_with_memo]
+
