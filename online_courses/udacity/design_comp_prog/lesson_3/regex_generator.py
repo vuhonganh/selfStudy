@@ -32,6 +32,7 @@ generated strings so that its length equal exactly the number in Ns.
 null = frozenset()
 
 def genseq(x, y, Ns, startx = 0):
+    "Set of matches to xy whose total len is in Ns with x-match's len is Ns_x and y-match's len is Ns_y"
     if not Ns:
         return null
     xmatches = x(set(range(startx, max(Ns) + 1)))
