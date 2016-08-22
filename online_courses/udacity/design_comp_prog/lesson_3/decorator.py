@@ -72,6 +72,7 @@ def countcalls(f):
 
 callcounts = {} # initialize callcounts to an empty dict
 
+
 @countcalls
 def fib(n):
     if n == 0 or n == 1:
@@ -96,3 +97,38 @@ print callcounts[fib]
 print fib_with_memo(20)
 print callcounts[fib_with_memo]
 
+
+@decorator
+def trace(f):
+    "tracer: '-->': make call to function, '<--': result found"
+    indent = '    '
+    def _f(*args):
+        signature = '%s(%s)' % (f.__name__, ''.join(map(repr, args)))
+        print '%s--> %s' %(trace.level * indent, signature)
+        trace.level += 1
+        try:
+            # result found
+            result = f(*args)
+            print '%s<-- %s === %s' %((trace.level - 1) * indent, signature, result)
+        finally:
+            trace.level -= 1
+        return result
+    trace.level = 0 # initialize trace level
+    return _f
+
+
+def disable(f):
+    return f
+
+# The line below will disable decorator trace, the same for other decorators
+# trace = disable
+
+@trace
+def fib_trace(n):
+    if n == 0 or n == 1:
+        return 1
+    else:
+        return fib_trace(n-1) + fib_trace(n-2)
+
+
+print fib_trace(6)
