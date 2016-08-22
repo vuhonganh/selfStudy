@@ -47,7 +47,7 @@ def lit(s):
 
 def alt(x, y):      return lambda Ns: x(Ns) | y(Ns)
 def star(x):        return lambda Ns: opt(plus(x))(Ns)
-def plus(x):        return lambda Ns: genseq(x, star(x), Ns, startx=1) #Tricky
+def plus(x):        return lambda Ns: genseq(x, star(x), Ns, startx=1) #Tricky, startx = 1 means that we always take 1 x cause x+ = x x*
 
 def oneof(chars):
     set_chars = set(chars) # precompute this set to avoid repetition each time creating the function
@@ -75,3 +75,25 @@ def test():
     return 'tests pass'
 
 print test()
+
+def test_gen():
+    def N(hi):
+        return set(range(hi + 1))
+    assert star(oneof('ab'))(N(2)) == set(['', 'a', 'aa', 'ab', 'ba', 'bb', 'b'])
+    a, b, c = map(lit, 'abc')
+
+    assert (seq(star(a), seq(star(b), star(c)))(set([4])) ==
+        set(['aaaa', 'aaab', 'aaac', 'aabb', 'aabc', 'aacc', 'abbc', 'abcc', 'abbb', 'accc', 'bbbb', 'bbbc', 'bbcc', 'bccc', 'cccc']))
+    assert (seq(plus(a), seq(plus(b), plus(c)))(set([5])) ==
+        set(['aaabc', 'aabbc', 'aabcc', 'abbbc', 'abbcc', 'abccc']))
+    assert (seq(oneof('bcfhrsm'), lit('at'))(N(3)) ==
+            set(['bat', 'cat', 'fat', 'hat', 'mat', 'rat', 'sat']))
+    assert (seq(star(alt(a, b)), opt(c))(set([3])) ==
+            set(['aaa', 'aab', 'aac', 'aba', 'abb', 'abc', 'baa',
+                 'bab', 'bac', 'bba', 'bbb', 'bbc']))
+    assert lit('hello')(set([5])) == set(['hello'])
+    assert lit('hello')(set([4])) == set()
+    assert lit('hello')(set([6])) == set()
+    return 'test_gen pass'
+
+print test_gen()
