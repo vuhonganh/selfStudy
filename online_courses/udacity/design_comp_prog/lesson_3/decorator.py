@@ -29,6 +29,7 @@ def n_ary(f):
 @n_ary
 def seq(x, y): return ('seq', x, y)   # only the first function below sign @n_ary will be affected
 
+
 def seq2(x, y): return ('seq2', x, y) # this will not be affected by n_ary
 
 a_func = seq('x1', 'y1')
@@ -38,6 +39,7 @@ b_func = seq('x2', 'y2', 'z2')
 print b_func
 
 help(seq)
+
 
 @decorator
 def memo(f):
@@ -59,6 +61,7 @@ def memo(f):
     _f.cache = cache # WHY ???
     print("id in memo %s" %id(_f))
     return _f
+
 
 @decorator
 def countcalls(f):
@@ -102,6 +105,7 @@ print callcounts[fib_with_memo]
 def trace(f):
     "tracer: '-->': make call to function, '<--': result found"
     indent = '    '
+
     def _f(*args):
         signature = '%s(%s)' % (f.__name__, ''.join(map(repr, args)))
         print '%s--> %s' %(trace.level * indent, signature)
