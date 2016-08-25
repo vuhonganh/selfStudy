@@ -58,10 +58,45 @@ def path_states(path):
     # return [path[k] for k in range(len(path)) if not k % 2] # long version, inefficient
     return path[0::2]
 
+
 def path_actions(path):
     """Return a list of actions in this path."""
     # return [path[k] for k in range(len(path)) if k % 2] # long version, inefficient
     return path[1::2]
+
+
+def elapsed_time(path):
+    """Return the elapsed time of a given path"""
+    # This should be the time of last element in a path
+    # Note that the last element in a path is always a state
+    if not path:
+        return 0
+    return path[-1][2]
+
+
+def bridge_problem(left):
+    left = frozenset(left) | frozenset({'light'})
+    explored = set()    # set of explored state
+    # original state (at t = 0) is: all people are in the left
+    original_state = (left, frozenset(), 0)
+    # at the beginning there is only one path containing original state
+    frontier = [ [original_state] ]  # frontier is an ordered list of path
+    explored.add(original_state)
+    while frontier:
+        cur_path = frontier.pop(0)
+        cur_state = cur_path[-1]
+        if not cur_state[0]:    # all people are not in the left
+            return cur_path
+        else:
+            for (next_state, action) in bsuccessors(cur_state).items():
+                if next_state not in explored:
+                    explored.add(next_state)
+                    next_path = cur_path + [action, next_state]
+                    frontier.append(next_path)
+            frontier.sort(key=elapsed_time)
+    # print 'no sol'
+    return []
+
 
 def test_paths():
     testpath = [(frozenset([1, 10]), frozenset(['light', 2, 5]), 5), # state 1
@@ -106,8 +141,6 @@ def test_paths():
                                       (1, 1, '->')]
     return 'test_paths pass'
 
-print test_paths()
-
 
 def test():
     assert bsuccessors((frozenset([1, 'light']), frozenset([]), 3)) == {
@@ -115,7 +148,44 @@ def test():
 
     assert bsuccessors((frozenset([]), frozenset([2, 'light']), 0)) == {
         (frozenset([2, 'light']), frozenset([]), 2): (2, 2, '<-')}
+    assert bridge_problem(frozenset((1, 2),))[-1][-1] == 2 # the [-1][-1] grabs the total elapsed time
+    assert bridge_problem(frozenset((1, 2, 5, 10),))[-1][-1] == 17
 
+    print [elapsed_time(bridge_problem([1,2,4,8,16][:N])) for N in range(6)]
+    # print [bridge_problem([1, 2, 4, 8, 16][:N]) for N in range(6)]
     return 'tests pass'
 
+
+print test_paths()
 print test()
+
+# ADD MORE TESTS
+import doctest
+class TestBridge: """
+>>> elapsed_time(bridge_problem([1,2,5,10]))
+17
+
+## There are two equally good solutions
+>>> S1 = [(2, 1, '->'), (1, 1, '<-'), (5, 10, '->'), (2, 2, '<-'), (2, 1, '->')]
+>>> S2 = [(2, 1, '->'), (2, 2, '<-'), (5, 10, '->'), (1, 1, '<-'), (2, 1, '->')]
+>>> path_actions(bridge_problem([1,2,5,10])) in (S1, S2)
+True
+
+## Try some other problems
+>>> path_actions(bridge_problem([1,2,5,10,15,20]))
+[(2, 1, '->'), (1, 1, '<-'), (10, 5, '->'), (2, 2, '<-'), (2, 1, '->'), (1, 1, '<-'), (15, 20, '->'), (2, 2, '<-'), (2, 1, '->')]
+
+>>> path_actions(bridge_problem([1,2,4,8,16,32]))
+[(2, 1, '->'), (1, 1, '<-'), (8, 4, '->'), (2, 2, '<-'), (1, 2, '->'), (1, 1, '<-'), (16, 32, '->'), (2, 2, '<-'), (2, 1, '->')]
+
+>>> [elapsed_time(bridge_problem([1,2,4,8,16][:N])) for N in range(6)]
+[0, 1, 2, 7, 15, 28]
+
+>>> [elapsed_time(bridge_problem([1,1,2,3,5,8,13,21][:N])) for N in range(8)]
+[0, 1, 1, 2, 6, 12, 19, 30]
+
+"""
+
+
+print elapsed_time(bridge_problem([]))
+print doctest.testmod()
