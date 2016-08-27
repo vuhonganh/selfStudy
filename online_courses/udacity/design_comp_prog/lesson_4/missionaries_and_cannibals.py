@@ -20,30 +20,31 @@ def csuccessors(state):
     state. But a state where the cannibals can dine has no successors.
     Successors is a dict{state:action}"""
     M1, C1, B1, M2, C2, B2 = state
+    if C1 > M1 > 0 or C2 > M2 > 0:
+        return {}
     res = {}
-    if 0 <= C1 <= M1 and 0 <= C2 <= M2:
-        if B1 == 1:
-            if M1 >= 1:
-                res[(M1 - 1, C1, 1 - B1, M2 + 1, C2, B1)] = 'M->'
-                if C1 >= 1:
-                    res[(M1 - 1, C1 - 1, 1 - B1, M2 + 1, C2 + 1, B1)] = 'MC->'
+    if B1 == 1:
+        if M1 >= 1:
+            res[(M1 - 1, C1, 1 - B1, M2 + 1, C2, B1)] = 'M->'
             if C1 >= 1:
-                res[(M1, C1 - 1, 1 - B1, M2, C2 + 1, B1)] = 'C->'
-            if M1 >= 2:
-                res[(M1 - 2, C1, 1 - B1, M2 + 2, C2, B1)] = 'MM->'
-            if C1 >= 2:
-                res[(M1, C1 - 2, 1 - B1, M2, C2 + 2, B1)] = 'CC->'
-        else:
-            if M2 >= 1:
-                res[(M1 + 1, C1, B2, M2 - 1, C2, 1 - B2)] = '<-M'
-                if C2 >= 1:
-                    res[(M1 + 1, C1 + 1, B2, M2 - 1, C2 - 1, 1 - B2)] = '<-MC'
+                res[(M1 - 1, C1 - 1, 1 - B1, M2 + 1, C2 + 1, B1)] = 'MC->'
+        if C1 >= 1:
+            res[(M1, C1 - 1, 1 - B1, M2, C2 + 1, B1)] = 'C->'
+        if M1 >= 2:
+            res[(M1 - 2, C1, 1 - B1, M2 + 2, C2, B1)] = 'MM->'
+        if C1 >= 2:
+            res[(M1, C1 - 2, 1 - B1, M2, C2 + 2, B1)] = 'CC->'
+    else:
+        if M2 >= 1:
+            res[(M1 + 1, C1, B2, M2 - 1, C2, 1 - B2)] = '<-M'
             if C2 >= 1:
-                res[(M1, C1 + 1, B2, M2, C2 - 1, 1 - B2)] = '<-C'
-            if M2 >= 2:
-                res[(M1 + 2, C1, B2, M2 - 2, C2, 1 - B2)] = '<-MM'
-            if C2 >= 2:
-                res[(M1, C1 + 2, B2, M2, C2 - 2, 1 - B2)] = '<-CC'
+                res[(M1 + 1, C1 + 1, B2, M2 - 1, C2 - 1, 1 - B2)] = '<-MC'
+        if C2 >= 1:
+            res[(M1, C1 + 1, B2, M2, C2 - 1, 1 - B2)] = '<-C'
+        if M2 >= 2:
+            res[(M1 + 2, C1, B2, M2 - 2, C2, 1 - B2)] = '<-MM'
+        if C2 >= 2:
+            res[(M1, C1 + 2, B2, M2, C2 - 2, 1 - B2)] = '<-CC'
 
     return res
 
@@ -61,6 +62,8 @@ def mc_problem(start_state=(3,3,1,0,0,0), goal=None):
     explored = set()
     frontier = [[start_state]]  # a list of paths so far
     while frontier:
+        if debug:
+            print "explored = %s" %(str(explored))
         cur_path = frontier.pop(0)  # pop first
         cur_state = cur_path[-1]
         if debug:
@@ -68,7 +71,14 @@ def mc_problem(start_state=(3,3,1,0,0,0), goal=None):
         # check if we reach specified goal or all people are on the other side
         if cur_state == goal or (cur_state[0] == 0 and cur_state[1] == 0):
             return cur_path
+        if debug:
+            print "before for loop"
+            print "successors(cur_state) is %s" % str(csuccessors(cur_state).items())
+
         for (state, action) in csuccessors(cur_state).items():
+            if debug:
+                print "after action %s, next state = %s)" % (str(action), str(state))
+
             if state not in explored:
                 explored.add(state)
                 path = cur_path + [action, state]
@@ -77,6 +87,11 @@ def mc_problem(start_state=(3,3,1,0,0,0), goal=None):
                 frontier.append(path)  # add to last
                 if debug:
                     print "frontier = %s\n" % str(frontier)
+            else:
+                if debug:
+                    print "state in explored: %s" % str(state)
+        if debug:
+            print "after for loop"
     return []
 
 def test():
@@ -92,6 +107,9 @@ def test():
                                                (1, 3, 1, 4, 1, 0): '<-CC',
                                                (2, 2, 1, 3, 2, 0): '<-MC'}
     assert csuccessors((1, 4, 1, 2, 2, 0)) == {}
+
+    # print csuccessors((3, 1, 0, 0, 2, 1))
+
     print mc_problem((3,3,1,0,0,0))
 
     return 'tests pass'
