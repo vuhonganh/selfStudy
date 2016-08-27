@@ -47,11 +47,10 @@ def bsuccessors(state):
                                       t + max(a, b))
                         res_dict[next_state] = (a, b, '<-')
     return res_dict
-
-
 # a path is a list of [state, action, state, action, ... ]
 # path_states should return a list of the states in a path, and
 # path_actions should return a list of the actions.
+
 
 def path_states(path):
     """Return a list of states in this path."""
@@ -81,21 +80,113 @@ def bridge_problem(left):
     original_state = (left, frozenset(), 0)
     # at the beginning there is only one path containing original state
     frontier = [ [original_state] ]  # frontier is an ordered list of path
-    explored.add(original_state)
     while frontier:
         cur_path = frontier.pop(0)
         cur_state = cur_path[-1]
         if not cur_state[0]:    # all people are not in the left
             return cur_path
         else:
+            explored.add(cur_state)
             for (next_state, action) in bsuccessors(cur_state).items():
                 if next_state not in explored:
-                    explored.add(next_state)
                     next_path = cur_path + [action, next_state]
                     frontier.append(next_path)
             frontier.sort(key=elapsed_time)
-    # print 'no sol'
     return []
+
+
+# Need a better version of state which should only care about the
+# people on left and right side, not the time to avoid repeating move
+# The new path will be: [state, (action, total_time_after_applying_this_action), ...]
+def bsuccessors2(state):
+    """Return a dict of {state:action} pairs. A state is a
+    (left, right) tuple, where left and right are frozensets
+    of people (indicated by their travel times) and/or the light."""
+    left, right = state
+    # only the side having the lamp can go to the other side:
+    res_dict = {}
+    if 'light' in left:
+        for a in left:
+            if a is not 'light':
+                for b in left:
+                    if b is not 'light':
+                        next_state = (left - frozenset({a, b, 'light'}),
+                                      right | frozenset({a, b, 'light'})
+                                      )
+                        res_dict[next_state] = (a, b, '->')
+    else:
+        for a in right:
+            if a is not 'light':
+                for b in right:
+                    if b is not 'light':
+                        next_state = (left | frozenset({a, b, 'light'}),
+                                      right - frozenset({a, b, 'light'})
+                                      )
+                        res_dict[next_state] = (a, b, '<-')
+    return res_dict
+
+
+def path_cost(path):
+    """The total cost of a path (which is stored in a tuple
+    with the final action."""
+    # path = (state, (action, total_cost), state, ... )
+    if len(path) < 3:
+        return 0
+    else:
+        return path[-2][1]
+
+
+def bcost(action):
+    """Returns the cost (a number) of an action in the
+    bridge problem."""
+    # An action is an (a, b, arrow) tuple; a and b are
+    # times; arrow is a string.
+    a, b, arrow = action
+    return max(a,b)
+
+
+def final_state(path):
+    return path[-1]
+
+
+def bridge_problem2(left):
+    """More efficient version that uses bsuccessors2()"""
+    left = frozenset(left) | frozenset({'light'})
+    explored = set()    # set of explored state
+    # original state (at t = 0) is: all people are in the left
+    original_state = (left, frozenset())
+    # at the beginning there is only one path containing original state
+    frontier = [ [original_state] ]  # frontier is an ordered list of path
+    while frontier:
+        cur_path = frontier.pop(0)
+        cur_state = cur_path[-1]
+        if not cur_state[0]:    # all people are not in the left
+            return cur_path
+        else:
+            explored.add(cur_state)
+            pcost = path_cost(cur_path)
+            for (next_state, action) in bsuccessors2(cur_state).items():
+                if next_state not in explored:
+                    next_path = cur_path + [(action, pcost + bcost(action)), next_state]
+                    add_to_frontier(frontier, next_path)
+    return []
+
+
+def add_to_frontier(frontier, new_path):
+    """For each new_path needs to find if an old_path having the same final state
+    If new_path is better, delete old_path"""
+    old_path_idx = None
+    for idx, op in enumerate(frontier):
+        if op[-1] == new_path[-1]:
+            old_path_idx = idx
+            break
+    if old_path_idx is not None and path_cost(frontier[old_path_idx]) < path_cost(new_path):
+        return
+    elif old_path_idx is not None:
+        del frontier[old_path_idx]
+
+    frontier.append(new_path)
+    frontier.sort(key=path_cost)
 
 
 def test_paths():
@@ -143,49 +234,33 @@ def test_paths():
 
 
 def test():
-    assert bsuccessors((frozenset([1, 'light']), frozenset([]), 3)) == {
-        (frozenset([]), frozenset([1, 'light']), 4): (1, 1, '->')}
+    # assert bsuccessors((frozenset([1, 'light']), frozenset([]), 3)) == {
+    #     (frozenset([]), frozenset([1, 'light']), 4): (1, 1, '->')}
+    #
+    # assert bsuccessors((frozenset([]), frozenset([2, 'light']), 0)) == {
+    #     (frozenset([2, 'light']), frozenset([]), 2): (2, 2, '<-')}
+    # assert bridge_problem(frozenset((1, 2),))[-1][-1] == 2 # the [-1][-1] grabs the total elapsed time
+    # assert bridge_problem(frozenset((1, 2, 5, 10),))[-1][-1] == 17
+    #
+    here1 = frozenset([1, 'light'])
+    there1 = frozenset([])
 
-    assert bsuccessors((frozenset([]), frozenset([2, 'light']), 0)) == {
-        (frozenset([2, 'light']), frozenset([]), 2): (2, 2, '<-')}
-    assert bridge_problem(frozenset((1, 2),))[-1][-1] == 2 # the [-1][-1] grabs the total elapsed time
-    assert bridge_problem(frozenset((1, 2, 5, 10),))[-1][-1] == 17
+    here2 = frozenset([1, 2, 'light'])
+    there2 = frozenset([3])
 
-    print [elapsed_time(bridge_problem([1,2,4,8,16][:N])) for N in range(6)]
-    # print [bridge_problem([1, 2, 4, 8, 16][:N]) for N in range(6)]
+    assert bsuccessors2((here1, there1)) == {
+        (frozenset([]), frozenset([1, 'light'])): (1, 1, '->')}
+    assert bsuccessors2((here2, there2)) == {
+        (frozenset([1]), frozenset(['light', 2, 3])): (2, 2, '->'),
+        (frozenset([2]), frozenset([1, 3, 'light'])): (1, 1, '->'),
+        (frozenset([]), frozenset([1, 2, 3, 'light'])): (2, 1, '->')}
+
+    assert path_cost(('fake_state1', ((2, 5, '->'), 5), 'fake_state2')) == 5
+    assert path_cost(('fs1', ((2, 1, '->'), 2), 'fs2', ((3, 4, '<-'), 6), 'fs3')) == 6
+    assert bcost((4, 2, '->'), ) == 4
+    assert bcost((3, 10, '<-'), ) == 10
+    assert path_cost(bridge_problem2(frozenset((1, 2), ))) == 2
+    assert path_cost(bridge_problem2(frozenset((1, 2, 5, 10), ))) == 17
     return 'tests pass'
-
-
 print test_paths()
 print test()
-
-# ADD MORE TESTS
-import doctest
-class TestBridge: """
->>> elapsed_time(bridge_problem([1,2,5,10]))
-17
-
-## There are two equally good solutions
->>> S1 = [(2, 1, '->'), (1, 1, '<-'), (5, 10, '->'), (2, 2, '<-'), (2, 1, '->')]
->>> S2 = [(2, 1, '->'), (2, 2, '<-'), (5, 10, '->'), (1, 1, '<-'), (2, 1, '->')]
->>> path_actions(bridge_problem([1,2,5,10])) in (S1, S2)
-True
-
-## Try some other problems
->>> path_actions(bridge_problem([1,2,5,10,15,20]))
-[(2, 1, '->'), (1, 1, '<-'), (10, 5, '->'), (2, 2, '<-'), (2, 1, '->'), (1, 1, '<-'), (15, 20, '->'), (2, 2, '<-'), (2, 1, '->')]
-
->>> path_actions(bridge_problem([1,2,4,8,16,32]))
-[(2, 1, '->'), (1, 1, '<-'), (8, 4, '->'), (2, 2, '<-'), (1, 2, '->'), (1, 1, '<-'), (16, 32, '->'), (2, 2, '<-'), (2, 1, '->')]
-
->>> [elapsed_time(bridge_problem([1,2,4,8,16][:N])) for N in range(6)]
-[0, 1, 2, 7, 15, 28]
-
->>> [elapsed_time(bridge_problem([1,1,2,3,5,8,13,21][:N])) for N in range(8)]
-[0, 1, 1, 2, 6, 12, 19, 30]
-
-"""
-
-
-print elapsed_time(bridge_problem([]))
-print doctest.testmod()
