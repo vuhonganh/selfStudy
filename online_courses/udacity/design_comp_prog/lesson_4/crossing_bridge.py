@@ -189,6 +189,64 @@ def add_to_frontier(frontier, new_path):
     frontier.sort(key=path_cost)
 
 
+def lowest_cost_search(start, successors, is_goal, action_cost):
+    """Return the lowest cost path, starting from start state,
+    and considering successors(state) => {state:(action, total_cost), ...},
+    that ends in a state for which is_goal(state) is true,
+    where the cost of a path is the sum of action costs,
+    which are given by action_cost(action)."""
+    if is_goal(start):
+        return [start]
+    explored = set()
+    explored.add(start)
+    frontier = [[start]]
+    while frontier:
+        cur_path = frontier.pop(0)
+        cur_state = cur_path[-1]
+        if is_goal(cur_state[0]):
+            return cur_path
+        explored.add(cur_state) # VERY IMPORTANT to add cur_state here
+        cur_cost = cur_path[-2][1] if len(cur_path) > 2 else 0
+        for (state, action) in successors(cur_state).items():
+            if state not in explored:
+                # CAN NOT add state to explored because we could ignore better cases
+                total_cost = action_cost(action) + cur_cost
+                path = cur_path + [(action, total_cost), state]
+                add_to_frontier(frontier, path)
+    return []
+
+
+def bridge_problem3(here):
+    """Find the fastest (least elapsed time) path to
+    the goal in the bridge problem."""
+    left = frozenset(here) | frozenset({'light'})
+    start = (left, frozenset())
+    return lowest_cost_search(start, bsuccessors2, is_goal_bridge, bcost)
+
+def is_goal_bridge(here):
+    return not here or here == frozenset({'light'})
+
+
+
+def test_bridge_3():
+    here = [1, 2, 5, 10]
+    print bridge_problem3(here)
+    # assert bridge_problem3(here) == [
+    #         (frozenset([1, 2, 'light', 10, 5]), frozenset([])),
+    #         ((2, 1, '->'), 2),
+    #         (frozenset([10, 5]), frozenset([1, 2, 'light'])),
+    #         ((2, 2, '<-'), 4),
+    #         (frozenset(['light', 10, 2, 5]), frozenset([1])),
+    #         ((5, 10, '->'), 14),
+    #         (frozenset([2]), frozenset([1, 10, 5, 'light'])),
+    #         ((1, 1, '<-'), 15),
+    #         (frozenset([1, 2, 'light']), frozenset([10, 5])),
+    #         ((2, 1, '->'), 17),
+    #         (frozenset([]), frozenset([1, 10, 2, 5, 'light']))]
+    return 'test bridge 3 passes'
+
+print test_bridge_3()
+
 def test_paths():
     testpath = [(frozenset([1, 10]), frozenset(['light', 2, 5]), 5), # state 1
                 (5, 2, '->'),                                        # action 1

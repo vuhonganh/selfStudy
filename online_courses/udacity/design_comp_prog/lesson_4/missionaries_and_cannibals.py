@@ -19,6 +19,23 @@ debug = 0
 def shortest_path_search(start, successors, is_goal):
     """Find the shortest path from a state to a state s.t
     is_goal(state) is True"""
+    if is_goal(start):
+        return [start]
+    explored = set()
+    explored.add(start)
+    frontier = [[start]]
+
+    while frontier:
+        cur_path = frontier.pop(0)  # pop from the beginning of the queue
+        cur_state = cur_path[-1]
+        for (state, action) in successors(cur_state).items():
+            if state not in explored:
+                explored.add(state)
+                new_path = cur_path + [action, state]
+                if is_goal(state):
+                    return new_path
+                frontier.append(new_path)   # add at the end of the queue
+    return []
 
 def csuccessors(state):
     """Find successors (including those that result in dining) to this
@@ -99,6 +116,14 @@ def mc_problem(start_state=(3,3,1,0,0,0), goal=None):
             print "after for loop"
     return []
 
+
+def mc_problem2(start=(3, 3, 1, 0, 0, 0), goal=None):
+    return shortest_path_search(start, csuccessors, is_goal_mc)
+
+
+def is_goal_mc(state):
+    return state[0] == state[1] == 0
+
 def test():
     print "File: missionaries_and_cannibals.py"
     assert csuccessors((2, 2, 1, 0, 0, 0)) == {(2, 1, 0, 0, 1, 1): 'C->',
@@ -116,7 +141,26 @@ def test():
     # print csuccessors((3, 1, 0, 0, 2, 1))
 
     print mc_problem((3,3,1,0,0,0))
+    print "solve 2"
+    print mc_problem2()
 
     return 'tests pass'
 
+
+def is_goal(state):
+    if state == 8:
+        return True
+    else:
+        return False
+
+
+def successors(state):
+    successors = {state + 1: '->',
+                  state - 1: '<-'}
+    return successors
+
+
+# test
+assert shortest_path_search(5, successors, is_goal) == [5, '->', 6, '->', 7, '->', 8]
 print test()
+
