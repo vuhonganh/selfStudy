@@ -15,6 +15,11 @@ missionaries, but such a state should generate no successors.
 
 debug = 0
 
+
+def shortest_path_search(start, successors, is_goal):
+    """Find the shortest path from a state to a state s.t
+    is_goal(state) is True"""
+
 def csuccessors(state):
     """Find successors (including those that result in dining) to this
     state. But a state where the cannibals can dine has no successors.
