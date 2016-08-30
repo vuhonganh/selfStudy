@@ -186,7 +186,6 @@ def add_to_frontier(frontier, new_path):
         del frontier[old_path_idx]
 
     frontier.append(new_path)
-    frontier.sort(key=path_cost)
 
 
 def lowest_cost_search(start, successors, is_goal, action_cost):
@@ -213,6 +212,7 @@ def lowest_cost_search(start, successors, is_goal, action_cost):
                 total_cost = action_cost(action) + cur_cost
                 path = cur_path + [(action, total_cost), state]
                 add_to_frontier(frontier, path)
+        frontier.sort(key=path_cost)
     return []
 
 
@@ -223,26 +223,33 @@ def bridge_problem3(here):
     start = (left, frozenset())
     return lowest_cost_search(start, bsuccessors2, is_goal_bridge, bcost)
 
+
 def is_goal_bridge(here):
     return not here or here == frozenset({'light'})
 
+
+def bsuccessors3(state):
+    """Return a dict of {state:action} pairs.  State is (here, there, light)
+    where here and there are frozen sets of people, light is 0 if the light is
+    on the here side and 1 if it is on the there side.
+    Action is a tuple (travelers, arrow) where arrow is '->' or '<-'"""
+    here, there, light = state
+    res_dict = {}
+    if light:   # light at there
+        for a in there:
+            for b in there:
+                res_dict[here | frozenset({a, b}), there - frozenset({a, b}), 0] = (set({a, b}), '<-')
+    else:
+        for a in here:
+            for b in here:
+                res_dict[here - frozenset({a, b}), there | frozenset({a, b}), 1] = (set({a, b}), '->')
+    return res_dict
 
 
 def test_bridge_3():
     here = [1, 2, 5, 10]
     print bridge_problem3(here)
-    # assert bridge_problem3(here) == [
-    #         (frozenset([1, 2, 'light', 10, 5]), frozenset([])),
-    #         ((2, 1, '->'), 2),
-    #         (frozenset([10, 5]), frozenset([1, 2, 'light'])),
-    #         ((2, 2, '<-'), 4),
-    #         (frozenset(['light', 10, 2, 5]), frozenset([1])),
-    #         ((5, 10, '->'), 14),
-    #         (frozenset([2]), frozenset([1, 10, 5, 'light'])),
-    #         ((1, 1, '<-'), 15),
-    #         (frozenset([1, 2, 'light']), frozenset([10, 5])),
-    #         ((2, 1, '->'), 17),
-    #         (frozenset([]), frozenset([1, 10, 2, 5, 'light']))]
+
     return 'test bridge 3 passes'
 
 print test_bridge_3()
@@ -319,6 +326,23 @@ def test():
     assert bcost((3, 10, '<-'), ) == 10
     assert path_cost(bridge_problem2(frozenset((1, 2), ))) == 2
     assert path_cost(bridge_problem2(frozenset((1, 2, 5, 10), ))) == 17
+
+
+    print 'testing bsuccessors3()'
+
+    assert bsuccessors3((frozenset([1]), frozenset([]), 0)) == {
+        (frozenset([]), frozenset([1]), 1): (set([1]), '->')}
+
+    assert bsuccessors3((frozenset([1, 2]), frozenset([]), 0)) == {
+        (frozenset([1]), frozenset([2]), 1): (set([2]), '->'),
+        (frozenset([]), frozenset([1, 2]), 1): (set([1, 2]), '->'),
+        (frozenset([2]), frozenset([1]), 1): (set([1]), '->')}
+
+    assert bsuccessors3((frozenset([2, 4]), frozenset([3, 5]), 1)) == {
+        (frozenset([2, 4, 5]), frozenset([3]), 0): (set([5]), '<-'),
+        (frozenset([2, 3, 4, 5]), frozenset([]), 0): (set([3, 5]), '<-'),
+        (frozenset([2, 3, 4]), frozenset([5]), 0): (set([3]), '<-')}
+
     return 'tests pass'
 print test_paths()
 print test()
