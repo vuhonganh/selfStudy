@@ -57,7 +57,17 @@ def ride(here, there, system=boston):
 def longest_ride(system):
     """"Return the longest possible 'shortest path'
     ride between any two stops in the system."""
-    ## your code here
+    list_all_stations = system.keys()
+    longest_path = None
+    longest_length = 0
+    for i in range(len(list_all_stations) - 1):
+        for j in range(i + 1, len(list_all_stations)):
+            path_i_j = ride(list_all_stations[i], list_all_stations[j], system)
+            length_i_j = len(path_i_j)
+            if longest_length < length_i_j:
+                longest_path = path_i_j
+                longest_length = length_i_j
+    return longest_path
 
 
 def shortest_path_search(start, successors, is_goal):
@@ -100,16 +110,15 @@ def test_ride():
     assert ride('newton', 'alewife') == [
         'newton', 'green', 'kenmore', 'green', 'copley', 'green', 'park', 'red', 'charles', 'red',
         'mit', 'red', 'central', 'red', 'harvard', 'red', 'porter', 'red', 'davis', 'red', 'alewife']
-    # assert (path_states(longest_ride(boston)) == [
-    #     'wonderland', 'revere', 'suffolk', 'airport', 'maverick', 'aquarium', 'state', 'downtown', 'park',
-    #     'charles', 'mit', 'central', 'harvard', 'porter', 'davis', 'alewife'] or
-    #         path_states(longest_ride(boston)) == [
-    #             'alewife', 'davis', 'porter', 'harvard', 'central', 'mit', 'charles',
-    #             'park', 'downtown', 'state', 'aquarium', 'maverick', 'airport', 'suffolk', 'revere', 'wonderland'])
-    # assert len(path_states(longest_ride(boston))) == 16
+    assert (path_states(longest_ride(boston)) == [
+        'wonderland', 'revere', 'suffolk', 'airport', 'maverick', 'aquarium', 'state', 'downtown', 'park',
+        'charles', 'mit', 'central', 'harvard', 'porter', 'davis', 'alewife'] or
+            path_states(longest_ride(boston)) == [
+                'alewife', 'davis', 'porter', 'harvard', 'central', 'mit', 'charles',
+                'park', 'downtown', 'state', 'aquarium', 'maverick', 'airport', 'suffolk', 'revere', 'wonderland'])
+    assert len(path_states(longest_ride(boston))) == 16
     return 'test_ride passes'
 
 
 print 'File: tube.py'
 print test_ride()
-    # subway(boston)
