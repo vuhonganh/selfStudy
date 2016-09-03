@@ -7,6 +7,7 @@
 # This means that foresthills only has one neighbor ('backbay') and
 # that neighbor is on the orange line. Other stations have more neighbors:
 # 'state', for example, has 4 neighbors.
+import collections
 
 
 def subway(**lines):
@@ -26,6 +27,22 @@ def subway(**lines):
                 else:
                     resDict[stations_one_line[i]].update({stations_one_line[i + 1]: linename})
                     resDict[stations_one_line[i]].update({stations_one_line[i - 1]: linename})
+    return resDict
+
+
+def subway_ver2(**lines):
+    """Define a subway map. Input is subway(linename='station1 station2...'...).
+    Convert that and return a dict of the form: {station:{neighbor:line,...},...}
+    Make use of collections"""
+    # the result dict is a dict of a dict (graph)
+    resDict = collections.defaultdict(dict)
+    if lines is None:
+        return None
+    for linename, stations in lines.items():
+        list_stations = stations.split()
+        for i in range(len(list_stations) - 1):
+            resDict[list_stations[i]][list_stations[i + 1]] = linename
+            resDict[list_stations[i + 1]][list_stations[i]] = linename
     return resDict
 
 
@@ -54,6 +71,14 @@ def ride(here, there, system=boston):
     return shortest_path_search(here, successors, is_goal)
 
 
+def ride_ver2(here, there, system=boston):
+    """
+    Return a path on the subway system from here to there.
+    here, there: a station (in string) in the system. Make use of lambda function
+    """
+    return shortest_path_search(here, lambda s: system[s], lambda s: s == there)
+
+
 def longest_ride(system):
     """"Return the longest possible 'shortest path'
     ride between any two stops in the system."""
@@ -68,6 +93,11 @@ def longest_ride(system):
                 longest_path = path_i_j
                 longest_length = length_i_j
     return longest_path
+
+
+def longest_ride_ver2(system):
+    all_stations = set(s for s in system.keys())
+    return max([ride_ver2(a, b, system) for a in all_stations for b in all_stations], key=len)
 
 
 def shortest_path_search(start, successors, is_goal):
@@ -120,5 +150,24 @@ def test_ride():
     return 'test_ride passes'
 
 
+def test_ride_ver2():
+    assert ride_ver2('mit', 'government') == [
+        'mit', 'red', 'charles', 'red', 'park', 'green', 'government']
+    assert ride_ver2('mattapan', 'foresthills') == [
+        'mattapan', 'red', 'umass', 'red', 'south', 'red', 'downtown',
+        'orange', 'chinatown', 'orange', 'tufts', 'orange', 'backbay', 'orange', 'foresthills']
+    assert ride_ver2('newton', 'alewife') == [
+        'newton', 'green', 'kenmore', 'green', 'copley', 'green', 'park', 'red', 'charles', 'red',
+        'mit', 'red', 'central', 'red', 'harvard', 'red', 'porter', 'red', 'davis', 'red', 'alewife']
+    assert (path_states(longest_ride_ver2(boston)) == [
+        'wonderland', 'revere', 'suffolk', 'airport', 'maverick', 'aquarium', 'state', 'downtown', 'park',
+        'charles', 'mit', 'central', 'harvard', 'porter', 'davis', 'alewife'] or
+            path_states(longest_ride_ver2(boston)) == [
+                'alewife', 'davis', 'porter', 'harvard', 'central', 'mit', 'charles',
+                'park', 'downtown', 'state', 'aquarium', 'maverick', 'airport', 'suffolk', 'revere', 'wonderland'])
+    assert len(path_states(longest_ride_ver2(boston))) == 16
+    return 'test_ride_ver2 passes'
+
 print 'File: tube.py'
 print test_ride()
+print test_ride_ver2()
