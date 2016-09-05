@@ -3,14 +3,48 @@ Game called pig: 2 (or more) players roll the dice to accumulate their score to 
 They can hold or keep rolling (see each function's def.)
 """
 
+from functools import update_wrapper
+
+
+def decorator(d):
+    "Make function d a decorator: d wraps a function fn."
+
+    def _d(fn):
+        return update_wrapper(d(fn), fn)
+
+    update_wrapper(_d, d)
+    return _d
+
+
+@decorator
+def memo(f):
+    """Decorator that caches the return value for each call to f(args).
+    Then when called again with same args, we can just look it up."""
+    cache = {}
+
+    def _f(*args):
+        try:
+            return cache[args]
+        except KeyError:
+            cache[args] = result = f(*args)
+            return result
+        except TypeError:
+            # some element of args can't be a dict key
+            return f(args)
+
+    return _f
+
+
 # States are represented as a tuple of (p, me, you, pending) where
 # p:       an int, 0 or 1, indicating which player's turn it is.
 # me:      an int, the player-to-move's current score
 # you:     an int, the other player's current score.
 # pending: an int, the number of points accumulated on current turn, not yet scored
 import random
+
 goal = 50
 possible_moves = ['roll', 'hold']
+other = {1: 0, 0: 1}
 
 
 def hold(state):
@@ -39,6 +73,7 @@ def hold_at(x):
         if me + pending >= goal or pending >= x:
             return 'hold'
         return 'roll'
+
     strategy.__name__ = 'hold_at(%d)' % x
     return strategy
 
@@ -48,23 +83,31 @@ def clueless(state):
     return random.choice(possible_moves)
 
 
-def play_pig(A, B):
+def dice_rand():
+    while True:
+        yield random.randint(1, 6)
+
+
+def play_pig(A, B, dice_rolls=dice_rand()):
     """Play a game of pig between two players, represented by their strategies (i.e. function)
     Each time through the main loop we ask the current player for one decision,
     which must be 'hold' or 'roll', and we update the state accordingly.
     When one player's score exceeds the goal, return that player."""
     cur_state = (0, 0, 0, 0)  # start state
+    strategies = [A, B]
     while True:
-        if cur_state[1] >= goal:
-            return A
-        elif cur_state[2] >= goal:
-            return B
-        this_move = A(cur_state) if cur_state[0] == 0 else B(cur_state)
-        if this_move == 'hold':
+        (p, me, you, pending) = cur_state
+        if me >= goal:
+            return strategies[p]
+        elif you >= goal:
+            return strategies[other[p]]
+        elif strategies[p](cur_state) == 'hold':
             cur_state = hold(cur_state)
-        else:
-            d = random.randint(1, 6)
+        elif strategies[p](cur_state) == 'roll':
+            d = next(dice_rolls)
             cur_state = roll(cur_state, d)
+        else:   # me doing an illegal action -> loses the game immediately
+            cur_state = (other[p], goal, 0, 0)
 
 
 def always_roll(state):
@@ -73,6 +116,77 @@ def always_roll(state):
 
 def always_hold(state):
     return 'hold'
+
+
+def Q_pig(state, action, Pwin):
+    "The expected value of choosing action in state."
+    if action == 'hold':    # if we hold, the quality is 1 - the chance to win of the opponent in the next state
+        return 1 - Pwin(hold(state))
+    if action == 'roll':    # if we rold, the quality is 1 - the chance to win of the opponent if dice is 1, otherwise
+        # it's the chance for us to win with dice from 2 to 6. Overall, we need to take the average cause dice is fair
+        return (1 - Pwin(roll(state, 1))
+                + sum(Pwin(roll(state, d)) for d in (2, 3, 4, 5, 6))) / 6.
+    raise ValueError
+
+
+def best_action(state, actions, Q, U):
+    """Return the optimal action for a state, given U."""
+
+    def EU(action): return Q(state, action, U)  # EU = expected utility
+
+    return max(actions(state), key=EU)
+
+
+def pig_actions(state):
+    """The legal actions from a state."""
+    _, _, _, pending = state
+    return ['roll', 'hold'] if pending else ['roll']
+
+
+@memo
+def Pwin_utility(state):    # Probability of Winning
+    """The utility of a state; here just the probability that an optimal player
+    whose turn it is to move can win from the current state."""
+    # Assumes opponent also plays with optimal strategy.
+    (p, me, you, pending) = state
+    if me + pending >= goal:
+        return 1
+    elif you >= goal:
+        return 0
+    else:
+        return max(Q_pig(state, action, Pwin_utility)
+                   for action in pig_actions(state))
+
+
+def max_wins(state):
+    """The optimal pig strategy chooses an action with the highest win probability."""
+    return best_action(state, pig_actions, Q_pig, Pwin_utility)
+
+
+@memo
+def win_diff_utility(state):
+    "The utility of a state: here the winning differential (pos or neg)."
+    (p, me, you, pending) = state
+    if me + pending >= goal or you >= goal:
+        return me + pending - you
+    else:
+        return max(Q_pig(state, action, win_diff_utility)
+                   for action in pig_actions(state))
+
+
+def max_diffs(state):
+    """A strategy that maximizes the expected difference between my final score
+    and my opponent's."""
+    return best_action(state, pig_actions, Q_pig, win_diff_utility)
+
+
+def bad_strategy(state):
+    "A strategy that could never win, unless a player makes an illegal move"
+    return 'hold'
+
+
+def illegal_strategy(state):
+    return 'I want to win pig please.'
 
 
 def test():
@@ -84,24 +198,54 @@ def test():
     assert hold_at(30)((1, 29, 15, 21)) == 'hold'
     assert hold_at(15)((0, 2, 30, 10)) == 'roll'
     assert hold_at(15)((0, 2, 30, 15)) == 'hold'
-    for _ in range(10):
-        winner = play_pig(always_hold, always_roll)
-        assert winner.__name__ == 'always_roll'
 
+    A, B = hold_at(50), clueless
+    rolls = iter([6, 6, 6, 6, 6, 6, 6, 6, 2])
+    assert play_pig(A, B, rolls) == A
+
+    # change to 40 for the following tests
+    global goal
+    goal = 40
+
+    assert (max_wins((1, 18, 27, 8))) == "roll"
+    assert (max_wins((0, 23, 8, 8))) == "roll"
+    assert (max_wins((0, 31, 22, 9))) == "hold"
+    assert (max_wins((1, 11, 13, 21))) == "roll"
+    assert (max_wins((1, 33, 16, 6))) == "roll"
+    assert (max_wins((1, 12, 17, 27))) == "roll"
+    assert (max_wins((1, 9, 32, 5))) == "roll"
+    assert (max_wins((0, 28, 27, 5))) == "roll"
+    assert (max_wins((1, 7, 26, 34))) == "hold"
+    assert (max_wins((1, 20, 29, 17))) == "roll"
+    assert (max_wins((0, 34, 23, 7))) == "hold"
+    assert (max_wins((0, 30, 23, 11))) == "hold"
+    assert (max_wins((0, 22, 36, 6))) == "roll"
+    assert (max_wins((0, 21, 38, 12))) == "roll"
+    assert (max_wins((0, 1, 13, 21))) == "roll"
+    assert (max_wins((0, 11, 25, 14))) == "roll"
+    assert (max_wins((0, 22, 4, 7))) == "roll"
+    assert (max_wins((1, 28, 3, 2))) == "roll"
+    assert (max_wins((0, 11, 0, 24))) == "roll"
+    assert (max_wins((1, 5, 34, 4))) == "roll"
+
+    # The first three test cases are examples where max_wins and
+    # max_diffs return the same action.
+    assert(max_diffs((1, 26, 21, 15))) == "hold"
+    assert(max_diffs((1, 23, 36, 7)))  == "roll"
+    assert(max_diffs((0, 29, 4, 3)))   == "roll"
+    # The remaining test cases are examples where max_wins and
+    # max_diffs return different actions.
+    assert(max_diffs((0, 36, 32, 5)))  == "roll"
+    assert(max_diffs((1, 37, 16, 3)))  == "roll"
+    assert(max_diffs((1, 33, 39, 7)))  == "roll"
+    assert(max_diffs((0, 7, 9, 18)))   == "hold"
+    assert(max_diffs((1, 0, 35, 35)))  == "hold"
+    assert(max_diffs((0, 36, 7, 4)))   == "roll"
+    assert(max_diffs((1, 5, 12, 21)))  == "hold"
+    assert(max_diffs((0, 3, 13, 27)))  == "hold"
+    assert(max_diffs((0, 0, 39, 37)))  == "hold"
+    winner = play_pig(bad_strategy, illegal_strategy)
+    assert winner.__name__ == 'bad_strategy'
     return 'tests pass'
 
-
 print test()
-
-def generator_simple():
-    yield 1
-    yield 2
-    yield 3
-
-def test_pass_gen(a_generator_simple):
-    ora = a_generator_simple
-    print next(ora)
-    print next(ora)
-    print next(ora)
-
-test_pass_gen(generator_simple())
