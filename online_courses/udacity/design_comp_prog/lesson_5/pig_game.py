@@ -31,7 +31,7 @@ def memo(f):
         except TypeError:
             # some element of args can't be a dict key
             return f(args)
-
+    _f.cache = cache
     return _f
 
 
@@ -107,7 +107,7 @@ def play_pig(A, B, dice_rolls=dice_rand()):
             d = next(dice_rolls)
             cur_state = roll(cur_state, d)
         else:   # me doing an illegal action -> loses the game immediately
-            cur_state = (other[p], goal, 0, 0)
+            return strategies[other[p]]
 
 
 def always_roll(state):
@@ -118,14 +118,14 @@ def always_hold(state):
     return 'hold'
 
 
-def Q_pig(state, action, Pwin):
+def Q_pig(state, action, utility_func):
     "The expected value of choosing action in state."
     if action == 'hold':    # if we hold, the quality is 1 - the chance to win of the opponent in the next state
-        return 1 - Pwin(hold(state))
+        return 1 - utility_func(hold(state))
     if action == 'roll':    # if we rold, the quality is 1 - the chance to win of the opponent if dice is 1, otherwise
         # it's the chance for us to win with dice from 2 to 6. Overall, we need to take the average cause dice is fair
-        return (1 - Pwin(roll(state, 1))
-                + sum(Pwin(roll(state, d)) for d in (2, 3, 4, 5, 6))) / 6.
+        return (1 - utility_func(roll(state, 1))
+                + sum(utility_func(roll(state, d)) for d in (2, 3, 4, 5, 6))) / 6.
     raise ValueError
 
 
@@ -189,6 +189,28 @@ def illegal_strategy(state):
     return 'I want to win pig please.'
 
 
+def Pwin_utility_ver2(state):
+    """The utility of a state that a player having turn can make to obtain optimal utility"""
+    _, me, you, pending = state
+    return Pwin_utility_ver3(me, you, pending)
+
+
+@memo
+def Pwin_utility_ver3(me, you, pending):
+    """Return the probability of winning"""
+    if me + pending >= goal:
+        return 1
+    elif you >= goal:
+        return 0
+    else:
+        Proll = (1 - Pwin_utility_ver3(you, me + 1, 0) +
+                 sum(Pwin_utility_ver3(me, you, pending + d) for d in range(2, 7))) / 6.0
+        if not pending:  # pending = 0 -> need to roll
+            return Proll
+        else:
+            return max(Proll, 1 - Pwin_utility_ver3(you, me + pending, 0))
+
+
 def test():
     assert hold((1, 10, 20, 7)) == (0, 20, 17, 0)
     assert hold((0, 5, 15, 10)) == (1, 15, 15, 0)
@@ -246,6 +268,17 @@ def test():
     assert(max_diffs((0, 0, 39, 37)))  == "hold"
     winner = play_pig(bad_strategy, illegal_strategy)
     assert winner.__name__ == 'bad_strategy'
+    epsilon = 0.0001  # used to make sure that floating point errors don't cause test() to fail
+    assert goal == 40
+    assert len(Pwin_utility_ver3.cache) <= 50000
+    assert Pwin_utility_ver2((0, 42, 25, 0)) == 1
+    assert Pwin_utility_ver2((1, 12, 43, 0)) == 0
+    assert Pwin_utility_ver2((0, 34, 42, 1)) == 0
+    print Pwin_utility_ver2((0, 25, 32, 8))
+    assert abs(Pwin_utility_ver2((0, 25, 32, 8)) - 0.736357188272) <= epsilon
+    assert abs(Pwin_utility_ver2((0, 19, 35, 4)) - 0.493173612834) <= epsilon
+    print len(Pwin_utility.cache)
+    print len(Pwin_utility_ver3.cache)
     return 'tests pass'
 
 print test()
