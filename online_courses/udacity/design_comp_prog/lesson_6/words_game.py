@@ -9,6 +9,13 @@
 import time
 
 
+def timedcall(fn, *args):
+    "Call function with args; return the time in seconds and result."
+    t0 = time.time()
+    result = fn(*args)
+    t1 = time.time()
+    return t1-t0, result
+
 def prefixes(word):
     "A list of the initial sequences of a word, not including the complete word."
     return [word[:i] for i in range(1, len(word))]
@@ -48,6 +55,39 @@ def find_words(letters, pre='', results=None):
     return results
 
 
+def word_plays(hand, board_letters):
+    "Find all word plays from hand that can be made to abut with a letter on board."
+    # Find prefix + L + suffix; L from board_letters, rest from hand
+    results = set()
+    for pre in find_prefixes(hand, '', set()):
+        for L in board_letters:
+            add_suffixes(removed(hand, pre), pre+L, results)
+    return results
+
+
+def find_prefixes(hand, pre='', results=None):
+    "Find all prefixes (of words) that can be made from letters in hand."
+    if results is None:
+        results = set()
+    if pre in PREFIXES:
+        results.add(pre)
+        for L in hand:
+            find_prefixes(hand.replace(L, '', 1), pre+L, results)
+    return results
+
+
+def add_suffixes(hand, pre, results):
+    """Return the set of words that can be formed by extending pre with letters in hand."""
+    if results is None:
+        results = set()
+    if pre in WORDS:  # if pre is already a word: add it
+        results.add(pre)
+    if pre in PREFIXES:  # if pre is a prefix: continue the loop
+        for L in hand:
+            add_suffixes(hand.replace(L, '', 1), pre + L, results)
+    return results
+
+
 def test():
     assert len(WORDS) == 3892
     assert len(PREFIXES) == 6475
@@ -58,14 +98,4 @@ def test():
     assert find_words('BEEN') == {'BE', 'BEE', 'BEEN', 'BEN', 'EN', 'NE', 'NEB', 'NEE'}
     assert find_words('EEN', pre='B') == {'BE', 'BEE', 'BEEN', 'BEN'}
     return 'tests pass'
-
-
 print test()
-
-
-def timedcall(fn, *args):
-    "Call function with args; return the time in seconds and result."
-    t0 = time.time()
-    result = fn(*args)
-    t1 = time.time()
-    return t1-t0, result
