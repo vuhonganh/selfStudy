@@ -105,15 +105,14 @@ def average_score(strategy, N=1000):
 
 def superior(A, B=take5):
     """Does strategy A have a higher average score than B, by more than 1.5 point?"""
-    print 'average_score(my_strategy) = %d' %average_score(A)
-    print 'average_score(take5_strategy) = %d' % average_score(B)
+    print 'average_score(my_strategy) = %f' %average_score(A)
+    print 'average_score(take5_strategy) = %f' % average_score(B)
     return average_score(A) - average_score(B) > 1.5
 
 
 def strategy(state):
     (score, yard, cards) = state
     return best_score(yard, cards)[1]
-
 
 
 @memo
