@@ -88,6 +88,19 @@ def add_suffixes(hand, pre, results):
     return results
 
 
+def longest_words(hand, board_letters):
+    "Return all word plays, longest first."
+    # The line of code below will return None because list.sort() is an in-place function (i.e. procedure).
+    # It returns NOTHING. That's why we need to assign a list explicitly
+    # return list(word_plays(hand, board_letters)).sort(key=len, reverse=True)
+    # explicit_list_words = list(word_plays(hand, board_letters))
+    # explicit_list_words.sort(key=len, reverse=True)
+    # return explicit_list_words  # NOTE to return the list itself, not the result of a function list.sort
+
+    # ALTERNATIVE
+    return sorted(word_plays(hand, board_letters), key=len, reverse=True)
+
+
 def test():
     assert len(WORDS) == 3892
     assert len(PREFIXES) == 6475
@@ -97,5 +110,13 @@ def test():
     assert 'ZOMB' in PREFIXES
     assert find_words('BEEN') == {'BE', 'BEE', 'BEEN', 'BEN', 'EN', 'NE', 'NEB', 'NEE'}
     assert find_words('EEN', pre='B') == {'BE', 'BEE', 'BEEN', 'BEN'}
+    assert (word_plays('ADEQUAT', set('IRE')) ==
+            set(['DIE', 'ATE', 'READ', 'AIT', 'DE', 'IDEA', 'RET', 'QUID', 'DATE', 'RATE',
+                 'ETA', 'QUIET', 'ERA', 'TIE', 'DEAR', 'AID', 'TRADE', 'TRUE', 'DEE',
+                 'RED', 'RAD', 'TAR', 'TAE', 'TEAR', 'TEA', 'TED', 'TEE', 'QUITE', 'RE',
+                 'RAT', 'QUADRATE', 'EAR', 'EAU', 'EAT', 'QAID', 'URD', 'DUI', 'DIT', 'AE',
+                 'AI', 'ED', 'TI', 'IT', 'DUE', 'AQUAE', 'AR', 'ET', 'ID', 'ER', 'QUIT',
+                 'ART', 'AREA', 'EQUID', 'RUE', 'TUI', 'ARE', 'QI', 'ADEQUATE', 'RUT']))
+    # print longest_words('ADEQUAT', set('IRE'))
     return 'tests pass'
 print test()
