@@ -35,19 +35,16 @@ def removed(letters, remove):
     return letters
 
 
-def find_words(letters):
-    """Return a set of words that can be formed a set of characters from input letters.
+def find_words(letters, pre='', results=None):
+    """Return a set of words that can be formed by a subset of characters from input letters.
     Note that the formed word must belong to the set WORDS"""
-    results = set()
-
-    def extend_prefix(w, letters):
-        if w in WORDS:
-            results.add(w)
-        if w not in PREFIXES: return
+    if results is None:
+        results = set()
+    if pre in WORDS:
+        results.add(pre)
+    if pre in PREFIXES:  # only continue if pre in PREFIXES
         for L in letters:
-            extend_prefix(w + L, removed(letters, L))
-
-    extend_prefix('', letters)
+            find_words(letters.replace(L, '', 1), pre + L, results)
     return results
 
 
@@ -58,6 +55,8 @@ def test():
     assert 'MOVING' in WORDS
     assert 'UNDERSTANDIN' in PREFIXES
     assert 'ZOMB' in PREFIXES
+    assert find_words('BEEN') == {'BE', 'BEE', 'BEEN', 'BEN', 'EN', 'NE', 'NEB', 'NEE'}
+    assert find_words('EEN', pre='B') == {'BE', 'BEE', 'BEEN', 'BEN'}
     return 'tests pass'
 
 
