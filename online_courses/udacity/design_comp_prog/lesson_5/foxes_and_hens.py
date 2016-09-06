@@ -24,6 +24,36 @@
 # 1.5 more points than the take5 strategy.
 
 import random
+from functools import update_wrapper
+
+
+def decorator(d):
+    "Make function d a decorator: d wraps a function fn."
+
+    def _d(fn):
+        return update_wrapper(d(fn), fn)
+
+    update_wrapper(_d, d)
+    return _d
+
+
+@decorator
+def memo(f):
+    """Decorator that caches the return value for each call to f(args).
+    Then when called again with same args, we can just look it up."""
+    cache = {}
+
+    def _f(*args):
+        try:
+            return cache[args]
+        except KeyError:
+            cache[args] = result = f(*args)
+            return result
+        except TypeError:
+            # some element of args can't be a dict key
+            return f(args)
+    _f.cache = cache
+    return _f
 
 
 def foxes_and_hens(strategy, foxes=7, hens=45):
@@ -42,7 +72,7 @@ def do(action, state):
     score, yard, cards = state
     nb_foxes = cards.count('F')
     nb_hens = cards.count('H')
-    if nb_foxes == 0 and nb_hens == 0:
+    if nb_foxes <= 0 and nb_hens <= 0:
         print 'No card left to draw'
         raise ValueError
     random_pick = random.randint(1, nb_foxes + nb_hens)
@@ -74,13 +104,39 @@ def average_score(strategy, N=1000):
 
 
 def superior(A, B=take5):
-    "Does strategy A have a higher average score than B, by more than 1.5 point?"
+    """Does strategy A have a higher average score than B, by more than 1.5 point?"""
+    print 'average_score(my_strategy) = %d' %average_score(A)
+    print 'average_score(take5_strategy) = %d' % average_score(B)
     return average_score(A) - average_score(B) > 1.5
 
 
 def strategy(state):
     (score, yard, cards) = state
-    # your code here
+    return best_score(yard, cards)[1]
+
+
+
+@memo
+def best_score(yard, cards):
+    """Given a reduced state (yard, cards) return the best score can achieve from this state"""
+    nb_foxes = cards.count('F')
+    nb_hens = cards.count('H')
+    # base cases
+    if nb_foxes == 0:
+        return (yard + nb_hens, 'wait')
+    if nb_hens == 0:
+        return (yard, 'gather')
+    prob_draw_fox = nb_foxes * 1.0 / (nb_hens + nb_foxes)
+    cards_foxes_drawn = 'F' * (nb_foxes - 1) + 'H' * nb_hens
+    cards_hens_drawn = 'F' * nb_foxes + 'H' * (nb_hens - 1)
+    score_gather = yard + prob_draw_fox * best_score(0, cards_foxes_drawn)[0] + \
+                        (1 - prob_draw_fox) * best_score(0, cards_hens_drawn)[0]
+    score_wait = prob_draw_fox * best_score(0, cards_foxes_drawn)[0] + \
+                 (1 - prob_draw_fox) * best_score(yard + 1, cards_hens_drawn)[0]
+    if score_gather > score_wait:
+        return (score_gather, 'gather')
+    else:
+        return (score_wait, 'wait')
 
 
 def test():
