@@ -133,7 +133,7 @@ def best_action(state, actions, Q, U):
     """Return the optimal action for a state, given U."""
 
     def EU(action): return Q(state, action, U)  # EU = expected utility
-
+    print 'max(actions(state)) = %s' %(max(actions(state), key=EU))
     return max(actions(state), key=EU)
 
 
