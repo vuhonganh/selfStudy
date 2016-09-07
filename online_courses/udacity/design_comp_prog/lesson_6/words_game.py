@@ -101,6 +101,18 @@ def longest_words(hand, board_letters):
     return sorted(word_plays(hand, board_letters), key=len, reverse=True)
 
 
+POINTS = dict(A=1, B=3, C=3, D=2, E=1, F=4, G=2, H=4, I=1, J=8, K=5, L=1, M=3, N=1, O=1, P=3, Q=10, R=1, S=1, T=1, U=1, V=4, W=4, X=8, Y=4, Z=10, _=0)
+
+def word_score(word):
+    """The sum of the individual letter point scores for this word."""
+    return sum(POINTS[L] for L in word)
+
+
+def topn(hand, board_letters, n=10):
+    """Return a list of the top n words that hand can play, sorted by word score."""
+    return sorted(word_plays(hand, board_letters), key=word_score, reverse=True)[:n]
+
+
 def test():
     assert len(WORDS) == 3892
     assert len(PREFIXES) == 6475
