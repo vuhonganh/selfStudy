@@ -20,7 +20,45 @@ def anagrams(phrase, shortest=2):
     lexicographic order (not all permutations)."""
     # first need to remove space in phrase for easy processing later:
     phrase_no_space = phrase.replace(' ', '')
-    return None
+
+    # case where are several words form an anagram
+    result_in_tuple = set()
+    find_anagrams(phrase_no_space, shortest, result_in_tuple)
+    result = set()
+    for elem in result_in_tuple:
+        s = ' '.join(w for w in elem)
+        result.add(s)
+
+    # case where a whole word form an anagram
+    whole_words = find_words(phrase_no_space, len(phrase_no_space))
+    for s in whole_words:
+        if s != phrase_no_space:
+            result.add(s)
+
+    return result
+
+
+def find_anagrams(letters, shortest, results):
+    """return a set of anagrams with all words longer than shortest"""
+    if len(letters) < shortest:
+        return
+
+    part_1 = find_words(letters, shortest)  # part_1 is the possible first words in results anagrams
+    for word in part_1:
+        subtracted_letters = removed(letters, word)
+        the_rest = find_words(subtracted_letters, len(subtracted_letters))  # find exact the rest which forms a word
+        for word2 in the_rest:
+            cur_anagram = (word, word2) if word < word2 else (word2, word)
+            results.add(cur_anagram)
+        subset = set()
+        find_anagrams(subtracted_letters, shortest, subset)
+        for _, elem in enumerate(subset):
+            another_anagram = ((word, elem[0], elem[1]) if word < elem[0] else
+                               (elem[0], word, elem[1]) if word < elem[1] else
+                               (elem[0], elem[1], word))
+
+            results.add(another_anagram)
+    return
 
 
 # ------------
@@ -38,7 +76,9 @@ def removed(letters, remove):
 def find_words(letters, shortest):
     """return a set of words in WORDS that is composed from a sub set of these letters
     min length of word is shortest"""
-    return extend_prefix('', letters, shortest, set())
+    if len(letters) < shortest:
+        return None
+    return sorted(extend_prefix('', letters, shortest, set()))
 
 
 def extend_prefix(pre, letters, shortest, results):
@@ -48,6 +88,7 @@ def extend_prefix(pre, letters, shortest, results):
     if pre in PREFIXES:
         for L in letters:
             extend_prefix(pre + L, letters.replace(L, '', 1), shortest, results)
+
     return results
 
 
@@ -72,18 +113,14 @@ WORDS, PREFIXES = readwordlist('words4k.txt')
 # Run the function test() to see if your function behaves as expected.
 
 def test():
-    print find_words('HELLO', 2)
-    print find_words('HELLO', 3)
-    print find_words('BEEN', 2)
-    print find_words('BEEN', 3)
-    # assert 'DOCTOR WHO' in anagrams('TORCHWOOD')
-    # assert 'BOOK SEC TRY' in anagrams('OCTOBER SKY')
-    # assert 'SEE THEY' in anagrams('THE EYES')
-    # assert 'LIVES' in anagrams('ELVIS')
-    # assert anagrams('PYTHONIC') == {'NTH PIC YO', 'NTH OY PIC', 'ON PIC THY', 'NO PIC THY', 'COY IN PHT', 'ICY NO PHT',
-    #                                 'ICY ON PHT', 'ICY NTH OP', 'COP IN THY', 'HYP ON TIC', 'CON PI THY', 'HYP NO TIC',
-    #                                 'COY NTH PI', 'CON HYP IT', 'COT HYP IN', 'CON HYP TI'}
-    # return 'tests pass'
+    assert 'DOCTOR WHO' in anagrams('TORCHWOOD')
+    assert 'BOOK SEC TRY' in anagrams('OCTOBER SKY')
+    assert 'SEE THEY' in anagrams('THE EYES')
+    assert 'LIVES' in anagrams('ELVIS')
+    assert anagrams('PYTHONIC') == {'NTH PIC YO', 'NTH OY PIC', 'ON PIC THY', 'NO PIC THY', 'COY IN PHT', 'ICY NO PHT',
+                                    'ICY ON PHT', 'ICY NTH OP', 'COP IN THY', 'HYP ON TIC', 'CON PI THY', 'HYP NO TIC',
+                                    'COY NTH PI', 'CON HYP IT', 'COT HYP IN', 'CON HYP TI'}
+    return 'tests pass'
 
 
 print test()
