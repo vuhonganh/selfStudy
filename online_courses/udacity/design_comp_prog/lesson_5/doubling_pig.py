@@ -46,6 +46,7 @@ def memo(f):
         except TypeError:
             # some element of args can't be a dict key
             return f(args)
+
     _f.cache = cache
     return _f
 

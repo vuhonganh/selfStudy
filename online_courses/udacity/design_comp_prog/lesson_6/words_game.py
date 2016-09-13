@@ -303,7 +303,7 @@ DOWN, ACROSS = (1, 0), (0, 1) # Directions that words can go
 
 def bonus_template(quadrant):
     """Make a board from the upper-left quadrant.
-    A quadrant will be represented by multiple line text.
+    A quadrant will be represented by multiple line texp1 = poly((10, 20, 30))t.
     When call .split() it will be list of line
     when call map(mirror, quadrant.split()) : it mirror each elem i.e. reflect each line
     now call mirror on the previous result (a list of reflected lines): it will reflect these lines by the mid-line"""
