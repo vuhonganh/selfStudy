@@ -1,0 +1,84 @@
+---
+title: "Exploring the BRFSS data"
+output: 
+  html_document: 
+    fig_height: 4
+    fig.width: 15
+    highlight: pygments
+    theme: spacelab
+---
+
+## Setup
+
+### Load packages
+
+```{r load-packages, message = FALSE}
+library(ggplot2)
+library(dplyr)
+```
+
+### Load data
+
+Make sure your data and R Markdown files are in the same directory. When loaded
+your data file will be called `brfss2013`. Delete this note when before you submit 
+your work. 
+
+```{r load-data}
+load("brfss2013.RData")
+# load("~/workspace/selfStudy/online_courses/coursera/intro_probability_duke/week5_project/brfss2013.RData")
+```
+
+
+
+* * *
+
+## Part 1: Data
+The data file has 491775 observations of 330 variables. There is a lot of information can be mining from the data. However, we will focus mainly at Income Level, Physical Activity, Health Care Access, and Inadequate Sleep.
+
+* * *
+
+## Part 2: Research questions
+
+**Research quesion 1:**
+Does the Income Level has connection with Physical Activity.
+
+**Research quesion 2:**
+Does the Income Level has connection with Healhcare Access.
+
+**Research quesion 3:**
+Does the Income Level has connection with High Blood Pressure.
+
+* * *
+
+## Part 3: Exploratory data analysis
+
+**Research quesion 1:**
+Does the Income Level has connection with Physical Activity.
+
+Now plot the bar char of how many people do exercies in each income level.
+```{r plot-bar-income-exercises}
+brfss2013 %>% select(income2, exerany2) %>% filter(!is.na(income2), !is.na(exerany2)) -> income_exercises
+ggplot(data = income_exercises, aes(x = income2, fill = exerany2)) + geom_bar() + scale_x_discrete(labels = c(" < 10k$", " < 15k$", " < 20k$", " < 25k$", " < 35k$", " < 50k$", " < 75k$", " >= 75k$"))
+```
+
+We can see that the higher they earn, the more they do exercises. 
+
+
+**Research quesion 2:**
+Does the Income Level has connection with Health Care Access.
+```{r}
+brfss2013 %>% select(income2, hlthpln1) %>% filter(!is.na(income2), !is.na(hlthpln1)) -> income_healthcare
+ggplot(data = income_healthcare, aes(x = income2, fill = hlthpln1)) + geom_bar() + scale_x_discrete(labels = c(" < 10k$", " < 15k$", " < 20k$", " < 25k$", " < 35k$", " < 50k$", " < 75k$", " >= 75k$"))
+```
+
+The more they earn, the more they have access to health care system.
+
+
+**Research quesion 3:**
+Does the Income Level has connection with High Blood Pressure.
+```{r}
+brfss2013 %>% select(income2, bphigh4) %>% filter(!is.na(income2), !is.na(bphigh4)) -> income_pbhigh
+ggplot(data = income_pbhigh, aes(x = income2, fill = bphigh4)) + geom_bar() + scale_x_discrete(labels = c(" < 10k$", " < 15k$", " < 20k$", " < 25k$", " < 35k$", " < 50k$", " < 75k$", " >= 75k$"))
+```
+
+The upper middle class and the richest has less cardiovascular diseases.
