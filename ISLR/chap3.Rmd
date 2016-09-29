@@ -1,0 +1,361 @@
+---
+title: "ISLR chap 3"
+author: "Hong Anh VU"
+date: "28 September 2016"
+output: html_document
+---
+
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+  TeX: { 
+      equationNumbers: { 
+            autoNumber: "all",
+            formatNumber: function (n) {return ''+n}
+      } 
+  }
+});
+</script>
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+First of all we need to load the library:
+```{r load library ISLR}
+library(ISLR)
+```
+
+## Exo 8
+
+### 8.a
+```{r lm Auto}
+data(Auto); attach(Auto)  # load and attach Auto
+fit1 = lm(mpg ~ horsepower)
+summary(fit1)
+```
+
+i) Yes there is a relationship between the predictor and the response, since the p-value is small.
+ii) We can see how strong it is by R-squared and RSE value.
+iii) It's a negative relationship between the predictor and the response because the slope is negative.
+iv) The result is shown by running code chunk below.
+
+```{r predict}
+predict(object = fit1, newdata = data.frame(horsepower = c(98)), interval = "confidence")
+
+predict(object = fit1, newdata = data.frame(horsepower = c(98)), interval = "prediction")
+
+```
+
+### 8.b
+
+```{r plot and add trend}
+plot(x = horsepower, y = mpg)
+abline(reg = fit1, col = "red")  # call abline with regression object fit1
+```
+
+### 8.c
+
+```{r plot and diagnostic}
+par(mfrow = c(2,2))
+plot(fit1)
+```
+
+The patterns show us that the true relation is not linear as well as there is some high leverages in data set. 
+
+## Exo 9
+
+### 9.a
+
+We can use function **pairs()** to produce scatterplot matrix for every pair of variables in the data set.
+
+```{r pair}
+pairs(Auto)
+```
+
+### 9.b
+
+To exclude the qualitative variable **name** we can use function **subset()** with parameter **select = -name**.
+
+```{r cor exclude variable name}
+cor(subset(Auto, select = -name))
+```
+
+### 9.c
+
+```{r multiple linear regression}
+fit2 = lm(mpg ~ .-name, data = Auto)
+summary(fit2)
+```
+
+
+i) Yes there is a relationship between the predictors and the response because the F-statistics is big (252.4). Based on that we can reject the null hypothesis (that all slopes equal 0).
+
+ii) Predictors appear to have a statisticallyy significant relationship to the response are: **displacement**, **weight**, **year** and **origin**.
+
+iii) The coefficient for **year** is 0.751 suggesting that each year the **mpg** increases roughly 0.751.
+
+### 9.d
+
+```{r plot fit2}
+par(mfrow = c(2,2))
+plot(fit2)
+```
+
+Based on the plot we can see that a non-linearity exists because of discernible curve patterns. There are also some large outliers and some observations with unusually high leverage.
+
+### 9.e
+
+```{r try interaction terms}
+fit3 = lm(mpg ~ displacement * horsepower + weight * horsepower)
+summary(fit3)
+```
+
+As we can see the interaction **displacement:horsepower** appears to be statistically significant.
+
+### 9.f
+
+```{r try log}
+fit4 = lm(log(mpg) ~ horsepower + I(horsepower^2) + weight)
+summary(fit4)
+par(mfrow = c(2,2))
+plot(fit4)
+```
+
+From the correlation matrices, we can see that the relationship between **mpg** and some variables like **horsepower** and **weight** look similar to a log function. So we can try to fit using log(mpg).
+
+## Exo 11
+
+In this problem we'll investigate the t-statistic for the null hypothesis $H_0 : \beta = 0$ in simple linear regression without an intercept. Below is the generated data:
+
+```{r generate-data}
+set.seed(1)
+x = rnorm(100)
+y = 2 * x + rnorm(100)
+```
+
+### 11.a
+
+Perform a single linear regression **without intercept** on the data set:
+
+```{r lm-x-y-without-intercept}
+fit1 = lm(y ~ x + 0)
+plot(x = x, y = y)
+points(x = x, y = fit1$fitted.values, col='red')
+summary(fit1)
+```
+
+The p-value is small so we can reject the null ($\beta = 0$) where $\beta$ is the slope of linear model between **y and x**:
+
+\[ y = \beta x \] 
+
+
+### 11.b
+
+```{r lm-y-x-without-intercept}
+fit2 = lm(x ~ y + 0)
+plot(x = y, y = x)
+points(x = y, y = fit2$fitted.values, col='red')
+summary(fit2)
+```
+
+The p-value is small so we can reject the null ($\beta' = 0$) where $\beta'$ is the slope of linear model between **x and y**:
+
+\[ x = \beta' y \] 
+
+### 11.c
+
+The value of $\beta \approx 2$ which is expected. However, the value of $\beta'$ is a little bit supprising when $\beta' \approx 0.391$ which is not 0.5 as expected. This is due to the fact that we simulate the error term ($\varepsilon$) by a standard Normal distribution the same as x ($E \sim N(0,1)$). According to the result from Exo 5, and because random variable $X$ and $E$ independent so $Cov(X,E) = 0$, we have:
+
+\[ \hat{\beta} = \frac{\sum x_i y_i}{\sum {x_i}^2} = \frac{(\sum x_i y_i)/n}{(\sum {x_i}^2)/n} \rightarrow 2 + Cov(X,E)/Var(X) = 2\]
+
+Similarly, having $Var(Y) = Var(2*X + E) = 5Var(X)$ we can deduce:
+
+\[ \hat{\beta'} = \frac{\sum x_i y_i}{\sum {y_i}^2} = \frac{(\sum x_i y_i)/n}{(\sum {y_i}^2)/n} \rightarrow 2/5 + Cov(X,E)/Var(X) = 2/5 = 0.4\]
+
+Therefore, $\beta' \approx 0.391$ is correct.
+
+### 11.d
+
+The calculation is not short but this is not difficult too. Just put the form of $\hat{\beta}$ in 3.38 to the form of t-statistics and do some calculation with sum, we will obtain the result.
+
+By numerically, we can compute t-statistic by on the result above which is:
+
+```{r t-statistics}
+n = length(x)
+sumxy = sum(x*y)
+sumsquaredx = sum(x^2)
+sumsquaredy = sum(y^2)
+tstats = sqrt(n - 1) * sumxy / sqrt(sumsquaredx * sumsquaredy - sumxy^2)
+tstats
+```
+
+This is nearly the same value for t-statistics from function summary(fit2).
+
+### 11.e
+
+t-statistics formula from 11.d is symetric to x and y. Hence the t-statistics is the same for the regression of **y onto x** as it is for regression of **x onto y**.
+
+### 11.f
+
+```{r with-intercept}
+fit1 = lm(y ~ x)
+fit2 = lm(x ~ y)
+summary(fit1)
+summary(fit2)
+```
+
+We can see that the t-value for slope in 2 regressions roughly equals 18.56
+
+## Exo 13
+
+### 13.a and 13.b
+Create a vector **x**, containing 100 observations drawn from a N(0,1) distribution and a vector **eps** drawn from a N(0,0.25):
+
+```{r gen-normal-distri}
+set.seed(1)
+x = rnorm(100, mean = 0, sd = 1)
+eps = rnorm(100, mean = 0, sd = 0.25)
+```
+
+### 13.c
+
+Using **x** and **eps** generate a vector **y** according to model:
+
+
+$$\label{testtag}
+Y = -1 + 0.5X + \epsilon 
+$$
+
+```{r gen-y}
+y = -1 + 0.5 * x + eps
+```
+
+The equation $\ref{testtag}$ shows that vector **y** has the same length (length = 100) as vector **x**. From the model, we have intercept $\beta_0 = -1$ and slope $\beta_1 = 0.5$.
+
+### 13.d
+
+We expect to see a linear relationship between **x** and **y**. The range of **x** is expected to lie mostly in [-2, 2].
+
+```{r plot-x-y}
+plot(x, y)
+```
+
+### 13.e
+
+```{r fit-x-y}
+fit = lm(y ~ x)
+summary(fit)
+```
+
+We can see that $\hat{\beta_0} \approx -1.01$ and $\hat{\beta_1} \approx 0.50$ which are really close to $\beta_0 = -1$ and $\beta_1 = 0.5$
+
+### 13.f
+
+Display the least squares line (in red) on the scatterplot and also draw the population regression line (in green) on the plot:
+
+```{r draw-same-plot}
+plot(x, y)
+abline(fit, col = 2, lwd = 3)
+abline(a = -1, b = 0.5, col = 3, lwd = 3)
+legend(x = 0.2, y = -1.5, legend = c("lsline", "popline"), col = 2:3, lwd = 3)
+```
+
+### 13.g
+
+Fit a model that predicts y using x and x^2
+
+```{r fit-poly}
+fit2 = lm(y ~ x + I(x^2))
+summary(fit2)
+par(mfrow = c(2,2))
+plot(fit2)
+```
+
+We can see that the quadratic term is not statistically significant since its p-value is big (16.4%). So it does not improve the model.
+
+### 13.h, 13.i and 13.j
+
+Of course the model with less noise will be closer to the true model. The less noise in the data generated, the smaller the confidence interval.
+
+## Exo 14
+
+### 14.a
+
+```{r gen-data-unif-norm}
+set.seed(1)
+x1 = runif(100)
+x2 = 0.5*x1 + rnorm(100)/10
+y = 2 + 2*x1 + 0.3*x2 + rnorm(100)
+```
+
+The form of this linear model is:
+\[ Y = 2 + 2 X_1 + 0.3 X_2 + \epsilon\]
+
+Hence the regression coefficients are: $\beta_0 = 2$, $\beta_1 = 2$, $\beta_2 = 0.3$. 
+### 14.b
+```{r cor-plot}
+cor(x1, x2)
+plot(x1, x2)
+```
+
+We can see that their correlation is quite high and also in the plot we see a linear relationship between x1 and x2.
+
+### 14.c
+```{r fit-y-x1-x2}
+fit1 = lm(y ~ x1 + x2)
+summary(fit1)
+```
+
+From output we have $\hat{\beta}_0 \approx 2.131$, $\hat{\beta}_1 \approx 1.440$ and $\hat{\beta}_2 \approx 1.010$. We see that only $\hat{\beta}_0$ and $\hat{\beta}_1$ are statistically significant since their p-values are small enough to reject the null hypothesis. In addition, the estimated values $\hat{\beta}_0$ is near, $\hat{\beta}_1$ is a bit far and $\hat{\beta}_2$ is quite far to the true parameter.
+
+### 14.d and 14.e
+
+Fit y and x1:
+
+```{r fit-y-x1}
+fit2 = lm(y ~ x1)
+summary(fit2)
+par(mfrow = c(2,2))
+plot(fit2)
+```
+
+Fit y and x2:
+
+```{r fit-y-x2}
+fit3 = lm(y ~ x2)
+summary(fit3)
+par(mfrow = c(2,2))
+plot(fit3)
+```
+
+We reject null hypothesis in both case because their p-value is small.
+
+### 14.f
+
+No results in 14.c and 14.e do not contradict each other. This is the problem of collinearity between x1 and x2. When combine together like in 14.c, the presence of x2 is masked by the collinearity of x1 and x2.
+
+### 14.g
+
+Add a data case to the data set then fit the linear model as below:
+
+```{r add-one-case}
+ x1 = c(x1, 0.1)
+x2 = c(x2, 0.8)
+y = c(y, 6)
+
+fit4 = lm(y ~ x1 + x2)
+summary(fit4)
+par(mfrow = c(1, 1))
+plot(predict(fit4), rstudent(fit4))
+```
+
+First, we see that now $\beta_1$ is statistically insignificant while $\beta_2$ become statistically significant. This is expected because if there is a collinearity between x1 and x2, a small change in data set can lead to a big change in the whole regression result. 
+
+Second, the plot of studentized residual does not show any significant outlier. Hence we can say that this is not a problem of outlier.
+
+```{r plot-leverage}
+par(mfrow = c(2, 2))
+plot(fit4)
+```
+
+Yes this is a problem of high leverage point for the new data case (idx 101) since its Cook's distance is very high. We should exclude this case from the data set.
