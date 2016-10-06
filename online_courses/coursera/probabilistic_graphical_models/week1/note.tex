@@ -9,6 +9,22 @@ f(x_1, x_2, \ldots, x_n) = P(X_1=x_1, X_2=x_2, \ldots, X_n=x_n)
 \end{align}
 \myaligns{Joint Distribution}
 
+\section{Conditioning}
+It's when we condition on some variables. The data obtained after conditioning is called unnormalized measures and we can make them normalized by divide each of them by their sum. For example, we have a joint distribution $P(I, D, G)$ and we condition on variable $G$ to take only its value $G = g_1$. So we need to delete all measures having $G \neq g_1$. This step is called \textbf{reduction} in conditioning. After this step, we obtain measures that does not sum to 1. So we need to sum them up and divide each measure to this sum in order to obtain a (conditional) probability. This step is called \textbf{renormalization} in conditioning.  
+
+\begin{align}
+P(I, D, G) \xrightarrow{reduction} P(I, D, G=g_1) \xrightarrow{renormalize} P(I, D, g_1)
+\end{align}
+\myaligns{Conditioning}
+
+\section{Marginalization}
+It's when we have a large data set and we want to observe it only in terms of some variables. For example we have a joint distribution $P(I, D)$ and we are interested only in variable $D$. So we \textbf{marginalize} $I$ by summing over $I$ for each value that $D$ takes: 
+\begin{align}
+P(D) = \sum_{I} P(I, D)
+\end{align}
+\myaligns{Marginalization}
+
+
 \section{Factors}
 A factor is a function or a table or a mapping from every assignment of arguments to a real value. We define below factor $\Phi(X_1, \ldots, X_k)$ where $(X_1, \ldots, X_k)$ which is the scope (a set of random variables).
 \begin{align}
@@ -25,7 +41,7 @@ Hence, according to the definition above, a joint distribution is a factor. Figu
 \label{w1JointDistri}
 \end{figure}
 
-Another example is UnnormaliCed Measure $P(I,D,g^1)$ which has scope $(I,D)$ because $G$ is always fixed to $g^1$. Another \textbf{important example} is Conditional Probability Distribution (CPD). Figure \ref{w1CPD} illustrates the \textbf{CPD} $P(G | I, D)$ which means for every combination of values to the variable $I$ and $D$, we have a probability distribution over $G$.  
+Another example is Unnormalized Measure $P(I,D,g^1)$ which has scope $(I,D)$ because $G$ is always fixed to $g^1$. Another \textbf{important example} is Conditional Probability Distribution (CPD). Figure \ref{w1CPD} illustrates the \textbf{CPD} $P(G | I, D)$ which means for every combination of values to the variable $I$ and $D$, we have a probability distribution over $G$.  
 
 \begin{figure}[!ht]
 \centering
@@ -75,11 +91,22 @@ The student example involving the situation where students take a course. It con
 	\item Reference \textbf{L}etter from the prof. of this course $(L)$ ($0$ = not referred, $1$ = referred)
 \end{itemize}
 
-The dependency graph is shown in figure \ref{w1graphCPD}. Intuitively, we can see the directed edge meaning a strong relation between the 2 variables. We also annotate each node of the dependency graph to a CPD (Conditional Probability Distribution). NB: I do not know where this comes from, maybe we can calculate them from the data set. We have the chain rule for Bayesian Networks in this example is described in formula below.
+The dependency graph is shown in figure \ref{w1graphCPD}. Intuitively, we can see the directed edge meaning a strong relation between the 2 variables. \textbf{We also annotate each node of the dependency graph to a CPD (Conditional Probability Distribution)}. \textit{NB: I do not know where this comes from, maybe we can calculate them from the data set.} 
+
+In this example, we have 5 nodes so we will have 5 CPD as shown in figure \ref{w1graphCPD}. We have the chain rule for Bayesian Networks in this example is described in formula below.
 \begin{align}
 P(G|I,D)P(S|I)P(L|G)P(D)P(I) = P(D,I,G,S,L)
 \end{align}
 \myaligns{Chain Rule for Bayesian Networks}
+Note that this formula is derived from the standard chain rule of probability and some assumption about the independence as following:
+\begin{align*}
+P(I,D) 		 	&= P(D) P(I|D) = P(I) P(D)\\  
+P(D,I,G) 	 	&= P(I,D) P(G|I,D) \\
+P(S,D,I,G)   	&= P(D,I,G) P(S|D,I,G) = P(D,I,G) P(S|I) \\
+P(L,S,D,I,G) 	&= P(S,D,I,G) P(L|S,D,I,G) = P(S,D,I,G) P(L|G) \\
+				&= P(I) P(D) P(G|I,D) P(S|I) P(L|G)
+\end{align*}
+
 
 \begin{figure}[!ht]
 \centering
@@ -111,12 +138,20 @@ We can prove that Bayesian Network is a legal distribution meaning it satisfies 
 								&= 1
 \end{align*}
 
-Another notation: Let G be a graph over $X_1, .., X_n$. A distribution $P$ is called to factorize over graph G if:
+Another notation: Let G be a graph over $X_1, .., X_n$. A distribution $P$ is called to \textbf{factorize over graph G} if:
 \begin{align*}
 P(X_1, .., X_n) = \prod_i P(X_i | Par_G(X_i))
 \end{align*}
 
 \section{Reasoning Patterns}
+
+\subsection{Flow of Probabilistic Influence}
+We say $X$ influence $Y$ if condition on X changes beliefs about $Y$. Hence, $X$ can influence $Y$ when:
+\begin{itemize}
+	\item $X \rightarrow Y$
+	\item $Y \rightarrow X$
+	\item 
+\end{itemize}
 
 \subsection{Causal Reasoning}
 In a Bayesian network, if there is a path from one random variable to another, then the variable at the root of the path is said to affect the other random variables in the path via causal reasoning. For example, if $A \rightarrow B \rightarrow C$, then $A$ affects $B$ and $C$ via causal reasoning and $P(C)$ is generally \textbf{not equal} to $P(C|A)$.

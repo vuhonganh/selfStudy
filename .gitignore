@@ -7,6 +7,15 @@ main.out
 main.toc
 main.ali
 main.equ
+main.glg
+main.glo
+main.gls
+main.glsdefs
+main.synctex.gz
+main.ist
+
+note.dvi
+note.log
 *.pdf
 *.png
 usefull.tex
@@ -14,3 +23,5 @@ token.mat
 *.pyc
 *.jpg
 .idea/
+prank/
+*.zip
