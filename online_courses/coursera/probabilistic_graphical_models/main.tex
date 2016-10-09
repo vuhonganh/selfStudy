@@ -57,7 +57,8 @@
 \setlength\parindent{0pt}
 
 % List of equations
-\usepackage[titles]{tocloft}
+\usepackage[titles]{tocloft}  % THIS HELPS US TO CUSTOMIZE OUT LISTS
+
 \newcommand{\listequationsname}{List of Equations}
 \newlistof{myequations}{equ}{\listequationsname}
 % myequation takes in its display name
@@ -73,8 +74,25 @@
 % myaligns takes in its display name
 \newcommand{\myaligns}[1]{%
 % display name is printed
+%\refstepcounter{myaligns}  % THIS LINE IS ONLY FOR REVIEW PURPOSE
 \addcontentsline{ali}{myaligns}{\protect\numberline{\theequation}#1}}
 \setlength{\cftmyalignsnumwidth}{2.3em}% Width of formula number in List of Formulas
+
+\newtheorem{defi}{Definition}
+
+% List of Definition
+\newcommand{\listdefsname}{List of Definitions} %define the name that appears as a title of our list
+
+\newlistof{mydefs}{def}{\listdefsname}
+\newcommand{\mydefs}[1]{%
+\refstepcounter{mydefs}
+\addcontentsline{def}{mydefs}{\protect\numberline{\thechapter.\themydefs}#1}}
+\setlength{\cftmydefsnumwidth}{2.3em}
+
+
+\newtheorem{theorem}{Theorem}
+
+
 
 \setlength{\cftfigindent}{0pt}  % remove indentation from figures in lof
 \setlength{\cfttabindent}{0pt}  % remove indentation from tables in lot
@@ -146,11 +164,14 @@
 
 \listoffigures
 
-\lstlistoflistings
+%put in comment because there is no code yet
+%\lstlistoflistings  
 
 %\listofmyequations %use myaligns instead
 
 \listofmyaligns
+
+\listofmydefs
 
 \dictentry{PGM}{Probabilistic Graphical Model}%
 \dictentry{PDF}{Probability Distribution Function}%

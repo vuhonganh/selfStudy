@@ -5,8 +5,18 @@
 for FILE in `find ./images -name '*.png'`
 do
     FILENAME=`basename $FILE .png`;
-    [ ! -e ./images/${FILENAME}.eps ] && convert ./images/${FILENAME}.png eps3:./images/${FILENAME}.eps
+    if [ ! -e ./images/${FILENAME}.eps ]; then
+	echo  "Converting  $FILENAME.png to  $FILENAME.eps"
+	convert ./images/${FILENAME}.png eps3:./images/${FILENAME}.eps
+	if [ $? -eq 0 ]; then
+	    echo "Converting DONE. Removing .png files."
+	    rm -rf ./images/*.png	    
+	else
+	    echo "Converting FAILED. Make sure convert program is available (install ImageMagick by sudo yum install ImageMagick)."
+	fi
+    fi
+    
 done
 
 # remove all png files in ./images folder
-rm -rf ./images/*.png
+#

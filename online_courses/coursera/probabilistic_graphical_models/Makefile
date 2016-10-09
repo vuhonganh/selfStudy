@@ -19,4 +19,4 @@ show:
 	xdvi $(OBJ)
 
 png2eps:
-	sh png2eps.sh
+	sh ./png2eps.sh
