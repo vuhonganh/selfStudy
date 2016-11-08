@@ -78,6 +78,29 @@
 \addcontentsline{ali}{myaligns}{\protect\numberline{\theequation}#1}}
 \setlength{\cftmyalignsnumwidth}{2.3em}% Width of formula number in List of Formulas
 
+
+
+%\usepackage{lipsum}
+%
+%\newtheoremstyle{break}
+%{\topsep}{\topsep}%
+%{\itshape}{}%
+%{\bfseries}{\bfseries}%
+%{\newline}{}%
+%\theoremstyle{break}
+
+\newtheoremstyle{break}% name
+{}%         Space above, empty = `usual value'
+{}%         Space below
+{\itshape}% Body font
+{}%         Indent amount (empty = no indent, \parindent = para indent)
+{\bfseries}% Thm head font
+{\bfseries}%        Punctuation after thm head
+{\newline}% Space after thm head: \newline = linebreak
+{}%         Thm head spec
+
+\theoremstyle{break}
+
 \newtheorem{defi}{Definition}
 
 % List of Definition
@@ -177,13 +200,15 @@
 \dictentry{PDF}{Probability Distribution Function}%
 \dictentry{CPD}{Conditional Probability Distribution}%
 \dictentry{BN}{Bayesian Network}%
+\dictentry{2TBN}{2-time-slice Bayesian Network}%
+\dictentry{DBN}{Dynamic Bayesian Network}%
 \printglossary[style=list]%
 
 \chapter{Week 1} 
 \input{week1/note}
 
-% \chapter{Week 2}
-% \input{week2/note}
+ \chapter{Week 2}
+ \input{week2/note}
 
 % \chapter{Week 3}
 % \input{week3/note}
