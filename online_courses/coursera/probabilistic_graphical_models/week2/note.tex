@@ -1,0 +1,203 @@
+This is week 2 of course PGM (2016 version). 
+
+\section{Template Models}
+Template models are a convenient way of representing Bayesian networks that have a high amount of parameter sharing and structure. At the end of the day, however, they are merely compact representations of a fully unrolled Bayesian network, and thus have no additional representative powers.
+
+Template models can be:
+\begin{itemize}
+	\item Languages that specify how ground variables inherit dependency model from template
+	\item Dynamic Bayesian networks (temporal: which means process that evolve over time)
+	\item Object-relational models (people, courses, pixels)
+	\begin{itemize}
+		\item Directed (plate models, etc.)
+		\item Undirected
+	\end{itemize}
+\end{itemize}
+
+When we talk about template model, there is a sharing between and within models. For example, look at the figure \ref{w2TemplateModelExp}, it's a model describing genetic inheritance of a family. We say that there is a sharing between models when we use the same structure to describe the genetic inheritance of our own family. And we say there is a sharing within model since the structure that\textit{Genotype G $\rightarrow$ Blood type B} and \textit{genotype G of a person depends to their parent} are repeated through out all the node of the model.
+
+\begin{figure}[!ht]
+	\centering
+	\includegraphics[scale = 0.2]{w2TemplateModelExp}
+	\caption{Example about Template Model}
+	\label{w2TemplateModelExp}
+\end{figure}
+
+\subsection{Template Variable}
+Template variable $X(U_1,...,U_k)$ is instantiated (duplicated) multiple times, such as:
+\begin{itemize}
+	\item Location(t), Sonar(t)
+	\item Label(Pixel)
+	\item Genotype(person), Phenotype(person)
+	\item Difficulty(course), Intelligence(student), Grade(course, student)
+\end{itemize}
+
+
+\subsection{Temporal Models}
+\subsubsection{Distributions over Trajectories}
+We represent some concepts below:
+\begin{itemize}
+	\item Pick a time granularity $\Delta$
+	\item $X^{(t)}$ - variable $X$ at time $t\Delta$
+	\item $X^{(t:t')} = {X^{(t)}, ..., X^{(t')}}$  with $(t \leq t')$
+\end{itemize}
+We want to represent the probability distribution over a trajectory of the system of any duration $P(X^{(t:t')})$ for any $t, t'$. This can be huge so we need to make 2 assumptions (Markov and Time Invariance assumption) to represent it in a more compact way.
+
+First, we have the following chain rule for probability (this is always true, we can prove it easily):
+\begin{align}\label{w2ChainRuleForm1}
+P(X^{(0:T)}) = P(X^{0}) \prod_{t=0}^{T-1}P(X^{(t+1)} | X^{(0:t)} )
+\end{align}
+\myaligns{Chain Rule for Probability in Temporal Process form 1}
+
+This can be rewritten as:
+\begin{align}
+P(X^{(0:T)}) = P(X^{0:T-1}) P(X^{(T)} | X^{(0:T-1)} )
+\end{align}
+\myaligns{Chain Rule for Probability in Temporal Process form 2}
+
+\begin{defi}[Markov Assumption]
+We assume that next state is independent of the past given the current state (forgetting assumption). Note that a state at time $t$ can be all the variables denoted with a $t$ on the head (like $X^{(t)}, Y^{(t)}, etc.$) (i.e. it can be any variable, not only variable $X$)
+\begin{align}
+(X^{(t+1)} \perp X^{(0:t)} | X^{(t)})
+\end{align}
+\myaligns{Markov Assumption}
+So the Chain Rule \ref{w2ChainRuleForm1} becomes:
+\begin{align}
+P(X^{(0:T)}) = P(X^{0}) \prod_{t=0}^{T-1}P(X^{(t+1)} | X^{(t)} )
+\end{align}
+\myaligns{Chain Rule for Probability in Temporal Process with Markov Assumption}
+\end{defi}
+
+\begin{defi}[Time Invariance]
+Note $X$ the current state (i.e. at current time) and $X'$ the next state (i.e. at next time) and we have a template probability model $P(X'|X)$. Time Invariance assume this is replicated in every single time frame: 
+\begin{align}
+P(X^{(t+1)} | X^{(t)}) = P(X' | X)
+\end{align}
+\end{defi}
+
+When these above two assumption seem incorrect, we can correct them by enriching the model by adding variables or by adding dependencies that go further back in time.
+
+\subsubsection{Template Transition Model}
+Let's consider an example shown in figure \ref{w2TemplateTransModel} which describe a vehicle. 
+\begin{figure}[!ht]
+	\centering
+	\includegraphics[scale = 0.3]{w2TemplateTransModel}
+	\caption[Example about Template Transition Model]{Example about Template Transition Model: A vehicle model withs variables like Weather, Velocity, Location, Failure (the state of the sensors of this vehicle) and Obs (sensors' observation)}
+	\label{w2TemplateTransModel}
+\end{figure}
+
+We want to compute $P(W',V',L',F',O'|W,V,L,F)$ - the conditional distribution of the $t+1$ given $t$. Note that $O$ is not on the right-hand side because it does not affect any of the next state variables. Apply the chain rule for probabilistic graphical model, we have:
+\begin{align}
+P(W',V',L',F',O'|W,V,L,F) &= P(W'|W) P(V'|W,V) \times \\ 
+& \times P(L'|L,V) P(F'|F,W)  P(O'|L',F') \nonumber
+\end{align}
+
+We have some notation: 
+\begin{itemize}
+	\item intra-time-slice edges: to denote dependencies inside a time slice (this is assumed rapidly-acting) such as $P(O'|L',F')$ in figure \ref{w2TemplateTransModel}
+	\item inter-time-slice edges: dependencies go from a time-slice to the next time-slice.
+	\item persistence edges: dependencies of form $X \rightarrow X'$
+\end{itemize}
+
+\subsubsection{Initial State Distribution}
+To represent the entire system we need to not only the transition model but also the initial state:
+\begin{align}
+P(W^{(0)}, V^{(0)}, L^{(0)}, F^{(0)}, O^{(0)}) = P(W^{(0)} P(V^{(0)| L^{(0)}} P(L^{(0)}) P(F^{(0)}P(O^{(0)} | F^{(0)}, L^{(0)})
+\end{align}
+
+\subsubsection{Ground Bayesian Network}
+We have some definitions following:
+\begin{defi}[2-time-slice Bayesian Network (2TBN)]
+2TBN is:
+\begin{itemize}
+	\item A transition model over $X_1,...,X_n$ is specified as a BN fragment such that:
+	\begin{itemize}
+		\item The nodes include $X'_1,...,X'_n$ and a subset of $X_1,...,X_n$
+		\item Only the nodes $X'_1,...,X'_n$ have parents and a CPD
+	\end{itemize}
+	\item The 2TBN defines a conditional distribution
+	\[ P(X'|X) = \Pi_{i=1}^{n} P(X'_i | Par_{X'_i}) \]
+\end{itemize}	
+\end{defi}
+\mydefs{2-time-slice Bayesian Network}
+
+\begin{defi}[Dynamic Bayesian Network]
+A dynamic Bayesian Network over $X_1,...,X_n$ is defined by a:
+\begin{itemize}
+	\item 2TBN $BN_\rightarrow$ over $X_1,...,X_n$
+	\item a Bayesian network $BN^{(0)}$ over $X_1^{(0)},...,X_n^{(0)}$
+\end{itemize}
+\end{defi}
+
+Given 2 concepts above, we can represent a ground Bayesian Network as shown in figure \ref{w2GroundBayeNetwork} with the following definition
+\begin{defi}[Ground Network]
+	For a trajectory over $0,...,T$ we define a ground (unrolled network) such that:
+	\begin{itemize}
+		\item The dependency model for $X_1^{(0)},...,X_n^{(0)}$ is copied from $BN^{(0)}$
+		\item The dependency model for $X_1^{(t)},...,X_n^{(t)}$ for all $t>0$ is copied from $BN_\rightarrow$
+	\end{itemize}
+\end{defi}
+
+\begin{figure}[!ht]
+	\centering
+	\includegraphics[scale = 0.2]{w2GroundBayeNetwork}
+	\caption{Ground Bayesian Network}
+	\label{w2GroundBayeNetwork}
+\end{figure}
+
+\subsection{Hidden Markov Models}
+A Hidden Markov Model (HMM) can be considered as a subclass of DBNs. They are composed mainly by a 2TBN ($S \rightarrow S'$) and observation model ($S' \rightarrow O'$). In addition, the transition model can be complicated than usual as it can contain several possible assignments. For example, in figure \ref{w2HMMExp}, the transition $S \rightarrow S'$ can be explained as: if given current state is $S_1$ then next state can be itself with probability 0.3 or $S_2$ with probability 0.7; given current state is $S_2$ then next state can be $S_3$ with probability 0.4 or $S_4$ with probability 0.6 and etc. Note that $S_1,...,S_4$ here are possible assignment of $S$ and $S'$, not random variable. We can see that given a state, sum of conditional probabilities must equal 1.
+
+\begin{figure}[!ht]
+	\centering
+	\includegraphics[scale = 0.3]{w2HMMExp}
+	\caption{Hidden Markov Model Example}
+	\label{w2HMMExp}
+\end{figure}
+
+HMM has numerous applications as shown below and especially in Speech Recognition.
+\begin{itemize}
+	\item Robot Localization
+	\item Speech Recognition
+	\item Biological Sequence Analysis
+	\item Text Annotation
+\end{itemize}
+
+\subsection{Plate Models}
+There are cases when we have multiple objects of the same type (i.e. similar or same probabilistic model). One of the most common type of such models is called the Plate Model. 
+\subsubsection{Model Repetition} 
+Plate Model can represent the model repetition. For example in figure \ref{w2ModelRepetition} the variable $Outcome$ is indexed meaning it repeats many time as we toss the coin. Note that we put a little box around that $Outcome$ variable to indicate this is a plate. We can also see the parameter $\theta$ is outside of the plate which indicate it's the same for all values of $t$. 
+
+\begin{figure}[!ht]
+	\centering
+	\includegraphics[scale = 0.3]{w2ModelRepetition}
+	\caption{Model Repetition Example}
+	\label{w2ModelRepetition}
+\end{figure}
+
+\subsubsection{Nested Plates}
+Nested Plates is also a way to represent more complicated model repetition. Note that each plate is denoted by an index name. As shown in figure \ref{w2NestedPlates}, the Difficulty is indexed by course itself while Intelligence and Grade are indexed by both student and course. 
+
+\begin{figure}[!ht]
+	\centering
+	\includegraphics[scale = 0.3]{w2NestedPlates}
+	\caption{Nested Plates Example}
+	\label{w2NestedPlates}
+\end{figure}
+
+\subsubsection{Overlapping Plates}
+Some might believe that Intelligence should only be indexed by student (maybe all the courses are in a same topic for example). Hence we need overlapping plates to represent this situation (see figure \ref{w2OverlappingPlates}).
+
+\begin{figure}[!ht]
+	\centering
+	\includegraphics[scale = 0.3]{w2OverlappingPlates}
+	\caption{Overlapping Plates Example}
+	\label{w2OverlappingPlates}
+\end{figure}
+
+\subsubsection{Plate Dependency Model}
+The plate model must follow the dependencies below:
+\begin{defi}[Plate Dependency Model]
+Let $A(u_1,...,u_k)$ with \textbf{parents} $B_1(U_1),...,B_m(U_m)$. For each $i \in 1,...,m$, we must have $U_i \subseteq \{u_1, ..., u_k\}$ where $U_i$ is indices set of parent $B_i$. In other words: No indices in parents that are not in child.  	
+\end{defi}
+\mydefs{Plate Dependency Model}
