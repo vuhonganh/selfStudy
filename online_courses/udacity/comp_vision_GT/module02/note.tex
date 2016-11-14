@@ -71,3 +71,29 @@ The above formula is 1D second derivative. When we work with image, we have to d
 \nabla^2 h = \frac{\partial^2 f}{\partial x^2} + \frac{\partial^2 f}{\partial y^2}
 \end{align}
 Again, zero-crossings are the edges.
+
+\section{Hough Transform}
+\begin{defi}[Voting]
+Voting is a general technique where we let the features vote for all models that are compatible with it.
+\begin{itemize}
+\item Cycle through features, each casting votes for model parameters.
+\item Look for model parameters that receive a lot of votes.
+\end{itemize}
+\end{defi}
+Noise and clutter features will cast votes too but typically their votes should be inconsistent with the majority of \textit{good} features. It's also OK if some features are not observed as model can span multiple fragments. The main idea of Hough Transform to fit lines is:
+\begin{itemize}
+\item Each edge point votes for compatible lines.
+\item Look for lines that get many votes.
+\end{itemize}
+
+\subsection{Hough Space}
+We start with finding lines in image. We define a Hough Space is the space of parameters. For example, given $(x, y)$ is the point in image that may belong to a line, then the Hough space corresponding to find those lines in that image is $(m ,b)$ where we have a relation $y = mx + b$. So a line in image space corresponds to a point in Hough space. And a point in image space corresponds to a line in Hough space. The idea is to divide Hough space to a grid, and we count the \textbf{votes} for each bin. This is illustrated in figure \ref{mod2HoughSpace}.
+
+\begin{figure}
+\centering
+\includegraphics[scale=0.25]{mod2HoughSpace}
+\caption{Hough Space for finding lines from edge points}
+\label{mod2HoughSpace}
+\end{figure} 
+
+
