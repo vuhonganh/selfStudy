@@ -541,5 +541,71 @@ ORDER BY M2.director,
          M2.title;
 
 
+-- q10: Find the movie(s) with the highest average rating. Return the movie title(s) and average rating. 
+-- (Hint: This query is more difficult to write in SQLite than other systems; you might 
+-- think of it as finding the highest average rating and then choosing the movie(s) with that average rating.) 
+
+-- sqlite ver:
+SELECT title,
+       cur_avg_rating
+FROM (SELECT mID,
+             AVG(stars) AS cur_avg_rating
+      FROM Rating
+      GROUP BY mID) CurAvgRating
+  JOIN Movie USING (mID)
+WHERE cur_avg_rating = (SELECT MAX(avg_rating) AS highest_avg_rating
+                        FROM (SELECT mID, AVG(stars) AS avg_rating FROM Rating GROUP BY mID) AS AvgRating);
+
+
+
+
+-- postgre ver:
+WITH AvgRating AS
+(
+  SELECT mID,
+         AVG(stars) AS cur_avg_rating
+  FROM Rating
+  GROUP BY mID
+)
+SELECT title,
+       cur_avg_rating
+FROM AvgRating
+  JOIN Movie USING (mID)
+WHERE cur_avg_rating >= ALL (SELECT cur_avg_rating FROM AvgRating);
+
+
+-- q11: Find the movie(s) with the lowest average rating. Return the movie title(s) and average rating. 
+WITH AvgRating AS
+(
+  SELECT mID,
+         AVG(stars) AS cur_avg_rating
+  FROM Rating
+  GROUP BY mID
+)
+SELECT title,
+       cur_avg_rating
+FROM AvgRating
+  JOIN Movie USING (mID)
+WHERE cur_avg_rating <= ALL (SELECT cur_avg_rating FROM AvgRating);
+
+
+-- q12:
+-- For each director, return the director's name
+-- together with the title(s) of the movie(s) they directed that received the 
+-- highest rating among all of their movies, and the value of that rating. Ignore movies whose director is NULL. 
+
+SELECT DISTINCT Movie.director,
+       Movie.title,
+       stars
+FROM Movie
+  JOIN Rating USING (mID)
+  JOIN (SELECT director,
+               MAX(stars) AS max_stars
+        FROM Movie
+          JOIN Rating USING (mID)
+        WHERE director IS NOT NULL
+        GROUP BY director) AS DirHighestRating
+    ON Movie.director = DirHighestRating.director
+   AND Rating.stars = DirHighestRating.max_stars;
 
 
