@@ -1,0 +1,73 @@
+\section{Convolution vs Correlation}
+\begin{defi}[Cross-Correlation]
+	$F$ is input image, $H$ is the kernel mask, $G$ is output image. Then cross correlation is defined as:
+	\begin{align}
+	G[i,j] = \sum_{u=-k}^{k}\sum_{v=-k}^{k} H[u,v]F[i+u, j+v]
+	\end{align}
+	It's denoted as:
+	\[ G = H \otimes F\]
+\end{defi}
+\mydefs{Cross-Correlation}
+The effect of cross-correlation is that it flips left-right the kernel mask if we give an impulse image as input (image with only one pixel 1, the rest is 0). 
+
+The convolution does not flip the kernel given impulse image as input:
+\begin{defi}[Convolution]
+	$F$ is input image, $H$ is the kernel mask, $G$ is output image. The convolution is defined as:
+	\begin{align}
+	G[i,j] = \sum_{u=-k}^{k}\sum_{v=-k}^{k} H[u,v]F[i-u, j-v]
+	\end{align}
+	denoted as:
+	\[G = H \star F \]
+\end{defi}
+
+When the filter ($H$) is symmetric cross-correlation and convolution is the same.
+
+\subsection{Properties of Convolution}
+\begin{itemize}
+	\item Linear
+	\item Shift Invariant: operator behaves the same everywhere, i.e. the value of the output depends on the pattern in the image neighbourhood, not the position of the neighbourhood.
+	\item Commutative: $f \star g = g \star f$
+	\item Associative: $(f \star g) \star h = f \star (g \star h)$
+	\item Identity: unit impulse $e = [.., 0,0,1,0,0,...]$: $f \star e = f $
+	\item Differentiation: note that differentiation is also a linear operator. And we have:
+	$$ \frac{\partial}{\partial x}(f \star g) = \frac{\partial f}{\partial x} \star g $$
+\end{itemize}
+
+\subsection{Edge Detection}
+Edge is defined as the discontinuity in the image. This can be:
+\begin{itemize}
+	\item surface normal discontinuity
+	\item depth discontinuity
+	\item surface color discontinuity
+	\item illumination discontinuity
+\end{itemize}
+In short, an edge is a place of rapid change in the image. Consider the notion that image is a function then edges correspond to extrema of derivative. Hence, to calculate edge, we can compute the gradient of an image by following formula (discrete version):
+\begin{defi}[Image Gradient]
+	The gradient of an image with intensity $f(x, y)$ is:
+\[ \nabla f = [\frac{\partial f}{\partial x}, \frac{\partial f}{\partial y}] = [ \partial_x f, \partial_y f ] \]
+where for discrete data, we can approximate using finite differences:
+\[ \frac{\partial f(x, y)}{\partial x} \approx \frac{f(x+1, y) - f(x, y)}{1} \approx f(x+1,y) - f(x,y)\]
+\[ \frac{\partial f(x, y)}{\partial y} \approx \frac{f(x, y+1) - f(x, y)}{1} \approx f(x,y+1) - f(x,y)\]
+\end{defi}
+\mydefs{Image Gradient}
+
+Note that \textbf{the gradient points in the direction of most rapid increase in intensity}, where the direction is $\theta$ the angle between two components and the amount of change is given by the gradient magnitude:
+\[  \theta = tan^{-1} \Big( \frac{\partial_y f}{\partial_x f}  \Big)  \]
+\[  \| \nabla f  \| = \sqrt{(\partial_x f)^2 + (\partial_y f)^2}  \]
+
+\textbf{In a real world, the image normally has a lot of noise. Then we get the extrema of derivative in many places.} Thus we need to firstly smooth the image, then take the derivative of this blurred image and look for peaks. These peaks will represent edges. Denote $f$ the image, $h$ the filter which smooths the image, we remark the properties of differentiation:
+\[ 
+\frac{\partial}{\partial x} (h \star f) = (\frac{\partial}{\partial x} h) \star f
+\]
+
+But because we look for the peak of the result above, so we should consider again a derivative of the above result. This will be:
+\[ 
+\frac{\partial^2}{\partial x^2}(h \star f) = (\frac{\partial^2}{\partial x^2}h) \star f
+\]
+So we will search for a value zero of this second derivative where nearby there is strong gradient, i.e. where there is a zero-crossing then it will be the extrema. 
+
+The above formula is 1D second derivative. When we work with image, we have to do the \textbf{Laplacian} operator:
+\begin{align}
+\nabla^2 h = \frac{\partial^2 f}{\partial x^2} + \frac{\partial^2 f}{\partial y^2}
+\end{align}
+Again, zero-crossings are the edges.
