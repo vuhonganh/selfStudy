@@ -1,0 +1,232 @@
+\documentclass[12pt,oneside,a4paper]{article}
+\usepackage{fullpage}
+%\usepackage[toc,page]{appendix}
+\usepackage{enumitem}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{amsmath}
+\usepackage{amsthm}
+
+% Quotes
+\usepackage{upquote}
+
+% Code listing setup
+\usepackage{listings}
+\usepackage{color} %need to use color to define those colors below
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+\lstset{
+    commentstyle=\color{red},
+    keywordstyle=\color{blue},
+    backgroundcolor=\color{backcolour},   
+    commentstyle=\color{codegreen},
+    keywordstyle=\color{magenta},
+    numberstyle=\tiny\color{codegray},
+    stringstyle=\color{codepurple},
+    literate={~} {$\sim$}{1},
+    escapechar=£,
+    basicstyle=\scriptsize,
+    frame=single,
+    showstringspaces=false,
+    breaklines,
+    language=Python,
+}
+% Rermove indent in list of listing
+\makeatletter
+\renewcommand*{\l@lstlisting}{\@dottedtocline{1}{0em}{2.3em}}
+\makeatother
+
+
+% Hyper link setup
+\usepackage{hyperref}
+\hypersetup
+{
+    colorlinks=true,
+    linkcolor=blue,
+    urlcolor=red,
+    linktoc=all
+}
+
+% Graphicx setup
+\usepackage{graphicx}
+\graphicspath{ {images/} }
+
+% No indent at the first line of a paragraph
+\setlength\parindent{0pt}
+
+% List of equations
+\usepackage[titles]{tocloft}  % THIS HELPS US TO CUSTOMIZE OUT LISTS
+
+\newcommand{\listequationsname}{List of Equations}
+\newlistof{myequations}{equ}{\listequationsname}
+% myequation takes in its display name
+\newcommand{\myequations}[1]{%
+% display name is printed
+%\addcontentsline{equ}{myequations}{\protect\numberline{\theequation}#1}\par}
+\addcontentsline{equ}{myequations}{\protect\numberline{\theequation}#1}}
+\setlength{\cftmyequationsnumwidth}{2.3em}% Width of equation number in List of Equations
+
+% List of alignment
+\newcommand{\listalignsname}{List of Formulas}
+\newlistof{myaligns}{ali}{\listalignsname}
+% myaligns takes in its display name
+\newcommand{\myaligns}[1]{%
+% display name is printed
+%\refstepcounter{myaligns}  % THIS LINE IS ONLY FOR REVIEW PURPOSE
+\addcontentsline{ali}{myaligns}{\protect\numberline{\theequation}#1}}
+\setlength{\cftmyalignsnumwidth}{2.3em}% Width of formula number in List of Formulas
+
+
+
+%\usepackage{lipsum}
+%
+%\newtheoremstyle{break}
+%{\topsep}{\topsep}%
+%{\itshape}{}%
+%{\bfseries}{\bfseries}%
+%{\newline}{}%
+%\theoremstyle{break}
+
+\newtheoremstyle{break}% name
+{}%         Space above, empty = `usual value'
+{}%         Space below
+{\itshape}% Body font
+{}%         Indent amount (empty = no indent, \parindent = para indent)
+{\bfseries}% Thm head font
+{\bfseries}%        Punctuation after thm head
+{\newline}% Space after thm head: \newline = linebreak
+{}%         Thm head spec
+
+\theoremstyle{break}
+
+\newtheorem{defi}{Definition}
+
+% List of Definition
+\newcommand{\listdefsname}{List of Definitions} %define the name that appears as a title of our list
+
+\newlistof{mydefs}{def}{\listdefsname}
+\newcommand{\mydefs}[1]{%
+\refstepcounter{mydefs}
+\addcontentsline{def}{mydefs}{\protect\numberline{\thechapter.\themydefs}#1}}
+\setlength{\cftmydefsnumwidth}{2.3em}
+
+
+\newtheorem{theorem}{Theorem}
+
+
+
+\setlength{\cftfigindent}{0pt}  % remove indentation from figures in lof
+\setlength{\cfttabindent}{0pt}  % remove indentation from tables in lot
+
+
+% INDICES: NOT SO USEFUL IN MY CASE
+% \usepackage{imakeidx}
+% \makeindex[columns=2, title=Alphabetical Index, intoc]
+
+
+% Glossary
+\newcommand*{\glossaryname}{Glossary}
+\usepackage[nonumberlist,toc]{glossaries}
+\newcommand{\dictentry}[2]{%
+  \newglossaryentry{#1}{name=#1,description={#2}}%
+  \glslink{#1}{}%
+}
+\makeglossaries
+
+
+% To use mathbb represents mathematical form of capital letters
+\usepackage{amsfonts} 
+
+%% ---------------------------- BEGIN DOCUMENT ----------------------------
+
+\begin{document}
+\boldmath
+\begin{titlepage}
+    \begin{center}
+        \vspace*{1cm}
+%        
+        \Huge
+        \textbf{Course Name}\\
+%        
+        \vspace{0.5cm}
+        \LARGE
+			\textbf{Article Name}\\
+%        
+        \vspace{1.5cm}
+%        
+        \textbf{Hong Anh VU}\\
+        login: hav16 - CID: 01279968\\
+        %email: vuhonganh91 at gmail dot com\\
+        \today
+%        
+        \vfill        
+%
+%        \begin{figure}[!ht]
+%          \centering
+%          \includegraphics[scale=0.28]{xLogo.eps}
+%        \end{figure}
+%        
+%        \Large
+%        Ecole Polytechnique\\
+%        Promotion X2011\\
+%        
+    \end{center}
+\end{titlepage}
+
+
+
+%\setcounter{tocdepth}{2}
+%\tableofcontents
+
+% \makeatletter
+% \def\@@underline#1{#1}
+% \tableofcontents
+% \makeatother
+
+
+%\listoffigures
+
+%put in comment because there is no code yet
+%\lstlistoflistings  
+
+%\listofmyequations %use myaligns instead
+
+%\listofmyaligns
+
+%\listofmydefs
+
+
+% Glossary Example
+%\dictentry{PGM}{Probabilistic Graphical Model}%
+%\dictentry{PDF}{Probability Distribution Function}%
+%\dictentry{CPD}{Conditional Probability Distribution}%
+%\dictentry{BN}{Bayesian Network}%
+%\dictentry{2TBN}{2-time-slice Bayesian Network}%
+%\dictentry{DBN}{Dynamic Bayesian Network}%
+%\printglossary[style=list]%
+
+
+% Figure example
+% \begin{figure}[!htbp]
+% 	\centering
+%	\includegraphics[width=0.8\hsize]{q1Hough}
+%	\caption{Corresponding lines in Hough space}
+%	\label{q1Hough}
+% \end{figure}
+
+
+% Listing Example
+% \lstinputlisting[language=Python,label=lstPlot,caption=Plot corresponding lines in Hough space]{hough_plot.py}
+
+% Chapter Example
+%\chapter{Week 1} 
+%\input{week1/note}
+
+\section*{Problem 1}
+
+
+
+
+\end{document}
